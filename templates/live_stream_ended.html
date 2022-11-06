@@ -1,0 +1,31 @@
+{% load static %}
+
+<!DOCTYPE html> 
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Vschools | Live</title>
+        <link rel = "stylesheet" id = "styles" href = "{% static 'dark/live_stream_ended.css' %}"/>
+        <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    </head>
+    <body>
+        <div id = "navbar">
+            <h1>Vschools</h1>
+        </div>
+        <div id = "divtwo">
+            <h1><i class = "fas fa-link"></i> Live session ended.</h1>
+            <p>
+                You have ended your live stream, you can return to home page.
+            </p>
+            <a class = "return_to_home" href = "{% url 'home' %}">Return to home.</a>
+        </div>
+        <div id = "divone">
+            <p data-description = "23"><i class = "fas fa-eye"></i></p>
+            <p data-description = "70 min"><i class = "fas fa-clock"></i></p>
+            <p data-description = "23"><i class = "fas fa-bell"></i></p>
+            <p data-description = "44"><i class = "fas fa-user"></i></p>
+        </div>
+        <p class = "footer">Vschools premium</p>
+    </body>
+</html>

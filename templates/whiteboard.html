@@ -1,0 +1,62 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Whiteboard</title>
+        <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}"/>
+        <link rel = "stylesheet" href = "{% static 'dark/whiteboard.css' %}"/>
+	    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src="https://sdk.netless.link/white-web-sdk/2.15.16.js"></script>
+        <script src = "{% static 'whiteboard.js' %}" defer></script>
+    </head>
+    <body>
+        <div id = "navbar" data-id = "{{ request.user.id }}" data-user_token = "{{ request.user.user_token }}">
+            <h1>Whiteboard</h1>
+        </div>
+        <div id="whiteboard" style="height: 100vh;" data-meeting_token = "{{ request.meeting_token }}"></div>
+        <input type = "file" onchange = "uploadFile(this)" id = "photo" accept="image/*" hidden/>
+        <div id = "tools">
+            <button onclick = "cliker()"><i class = "fas fa-mouse-pointer"></i></button>
+            <button onclick = "eraser()"><i class = "fas fa-eraser"></i></button>
+            <button onclick = "pen()"><i class = "fas fa-pen"></i></button>
+            <button onclick = "hand()"><i class = "far fa-hand-paper"></i></button>
+            <button style = "font-weight: bold; font-size: 22px;" onclick = "text()">T</button>
+            <button onclick = "upload_image()"><i class = "fas fa-image"></i></button>
+            <button onclick = "clearBoard()"><i class = "fas fa-broom"></i></button>
+        </div>
+        <div id = "item2">
+            <button onclick = "undo()"><i class = "fas fa-undo"></i></button>
+            <button onclick = "redo()"><i class = "fas fa-redo"></i></button>
+        </div>
+        <div id = "magnifier">
+            <button><i class = "fas fa-plus"></i></button>
+            <p>100%</p>
+            <button><i class = "fas fa-minus"></i></button>
+        </div>
+        <div id = "scenes">
+            <button onclick = "swithcSceneBackward()"><i class = "fas fa-arrow-left"></i></button>
+            <p>1/1</p>
+            <button onclick = "switchSceneForward()"><i class = "fas fa-arrow-right"></i></button>
+            <button onclick = "addScene()"><i class = "fas fa-plus"></i></button>
+        </div>
+
+        <div id = "preloader_container">
+            <div class = "preloader">
+                <div class="lds-ripple"><div></div><div></div></div>
+                <p><i class = "fas fa-pen"></i> Preparing whiteboard</p>
+            </div>
+        </div>
+
+        <div id = 'uploadProgress'>
+            <div id = 'progressContainer'>
+                <h2><i class = "fas fa-upload"></i> Uploading file</h2>
+                <div id = "progressElement">
+                    <div></div>
+                </div>
+                <p>0%</p>
+                <button>Cancel</button>
+            </div>
+        </div>
+    </body> 
+</html>

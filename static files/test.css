@@ -1,0 +1,10 @@
+* {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    outline: none;
+    page-break-inside: avoid;
+}
+
+body {
+    background-color: white;
+    padding-top: 85px;
+}

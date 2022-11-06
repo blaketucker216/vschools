@@ -1,0 +1,36 @@
+{% load static %}
+
+<!DOCTYPE html>
+    <head>
+        <title>Vschools | Accounts</title>
+        <link rel = "stylesheet" href = "{% static 'ask_delete.css' %}"/>
+        <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    </head>
+    <body>
+        <div id = "navbar">
+            <h1>Vschools</h1>
+            <a href = "{% url 'logout' %}">Sign out</a>
+        </div>
+
+        <div id = "one">
+            <div id = "text">
+                <h2><i class = "fas fa-user-slash"></i> Delete account</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus et 
+                    egestas nibh. Donec et dapibus orci. Pellentesque rutrum dolor sit amet 
+                    luctus hendrerit. Morbi imperdiet eget turpis eu commodo. Vestibulum arcu 
+                    dui, faucibus fermentum mollis quis, aliquam ac orci. Curabitur facilisis 
+                    laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum
+                </p>
+            </div>
+
+            <div id = "info1">
+                <p>Are you sure you want to delete your account?</p>
+                <div>
+                    <a href = "{% url 'confirm_delete_page' %}" class = "a">Yes</a>
+                    <a href = "{% url 'settings' %}" class = "b">No</a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,36 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Vschools | Recorded files</title>
+        <link rel = "stylesheet" href = "{% static 'dark/uploaded_files.css' %}"/>
+        <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    </head>
+    <body>
+        <div id = "navbar">
+            <h1>Shark</h1>
+        </div>
+
+        {% if files %}
+            {% for item in files %}
+                <div class="container">
+                    <div class = "file_container">
+                        <i class = "fas fa-file-video"></i>
+                        <div>
+                            <a target = "_blank" href = "{{ item.fileUrl }}">Meeting recording</a>
+                        </div>
+                    </div>
+                    <p>date of recording</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class = "no_recordings">
+                <img src = "{% static 'online_learning.svg' %}"/>
+                <p class = "last_text">Class you've recorded appear here</p>
+            </div>
+        {% endif %}
+
+    </body>
+</html>

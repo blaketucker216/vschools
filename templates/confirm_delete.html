@@ -1,0 +1,40 @@
+{% load static %}
+
+<!DOCTYPE html>
+    <head>
+        <title>Vschools | Delete</title>
+        <link rel = "stylesheet" href = "{% static 'confirm_delete.css' %}"/>
+        <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    </head>
+    <body>
+        <div id = "navbar">
+            <h1>Vschools</h1>
+            <a href = "{% url 'logout' %}">Sign out</a>
+        </div>
+
+        <div id = "container">
+            <div id = "login">
+                <h2><i class = "fas fa-user-slash"></i> Delete account</h2>
+                <p id = "text">Enter your password to continue with deleting 
+                    your account.
+                </p>
+                <form method = "POST">
+                    {% csrf_token %}
+                    <div id = "holder">
+                        <i class="fas fa-lock"></i>
+                        <input type = "password" placeholder="Enter your password" name = "password1" required/>
+                    </div>
+
+                    <div id = "holder">
+                        <i class="fas fa-lock"></i>
+                        <input type = "password" placeholder="Confirm password" name = "password2" required/>
+                    </div>
+
+                    <button type = "submit">NEXT</button>
+                </form>
+                <p id = "footer">Vschools accounts</p>
+        </div>
+    
+    </body>
+</html>

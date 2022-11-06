@@ -1,0 +1,71 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Vschools | Account info</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <link type = "text/css" rel = "stylesheet" href = "{% static 'dark/settings_page.css' %}"/>
+        <link type = "text/css" rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}"/>
+        <link type = "text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/2.0.0-alpha.2/cropper.min.css" integrity="sha512-6QxSiaKfNSQmmqwqpTNyhHErr+Bbm8u8HHSiinMEz0uimy9nu7lc/2NaXJiUJj2y4BApd5vgDjSHyLzC8nP6Ng==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <script type = "text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/2.0.0-alpha.2/cropper.min.js" integrity="sha512-IlZV3863HqEgMeFLVllRjbNOoh8uVj0kgx0aYxgt4rdBABTZCl/h5MfshHD9BrnVs6Rs9yNN7kUQpzhcLkNmHw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script type = "text/javascript" src = "{% static 'settings.js' %}" defer></script>
+    </head>
+    <body>
+        <div id = "navbar">
+            <h1>Shark</h1>
+        </div>
+ 
+        <div class = "parent">
+            <div class = "info_holder">
+                <div class = "info">
+                    <img src = "{{ user.profile_picture.url }}" alt = "profile picture"/>
+                    <div>
+                        <h1 id = "username">{{ user.username }}</h1>
+                        <p>{{ user.email }}</p>
+                        <input type="file" id = "photo" onchange = "crop_photo(this)" accept="image/*" hidden/>
+                        <button onclick = "get_photo()"><i class = "fas fa-camera"></i> Choose image</button>
+                    </div>
+                </div>
+            </div>
+            <div class = "holder">
+                <h2>Update username</h2>
+                <p>Enter your names here both first and last name that will help other users
+                    to identify you in meeting sessions...
+                </p>
+                <form method = "POST" id = "info_form" onsubmit = "change_username(event)" autocomplete="off">
+                    {% csrf_token %}
+                    <input type = "text" placeholder = "Enter first name" name = "first_name" value = "{{ user.first_name }}" required/>
+                    <input type = "text" placeholder = "Enter last name" name = "last_name" value = "{{ user.last_name }}" required/>
+                    <input type = "text" placeholder = "Enter last name" name = "last_name" value = "{{ user.email }}" required/>
+                    <button type = "submit">Save changes</button>
+                </form>
+            </div>
+            <div class = "holder">
+                <h2>Change password</h2>
+                <p>Enter your password below, your password has to have atleast 8 characters and atmost 
+                    32 characters...
+                </p>
+                <form method = "POST" id = "password_form" onsubmit = "change_password(event)">
+                    {% csrf_token %}
+                    <input type = "password" min = "8" max = "32" name = "password_one" placeholder = "Enter current password" required/>
+                    <input type = "password" min = "8" max = "32" name = "password_two" placeholder = "Enter new password" required/>
+                    <input type = "password" min = "8" max = "32" name = "password_three" placeholder = "Confirm password" required/>
+                    <button type = "submit">Save changes</button>
+                </form>
+            </div>
+        </div>
+
+        <div id = "cropper_holder">
+            <div id = "container">
+                <div id = "main">
+                    <img id = "picture"/>
+                </div>
+                <div id = "buttons">
+                    <button style = "margin-left: auto"><i class = "fas fa-times"></i></button>
+                    <button onclick = "crop()"><i class = "fas fa-check"></i></button>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

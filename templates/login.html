@@ -1,0 +1,67 @@
+{% load static %}
+
+<!DOCTYPE html> 
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Shark | Login</title>
+        <link rel = "stylesheet" id = "styles" href = "{% static 'dark/login.css' %}"/>
+        <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src = "{% static 'login.js' %}" defer></script>
+    </head>
+    <body>
+        <div id = "navbar">
+            <h1 style = "font-family: 'Brush Script MT', cursive;">Shark</h1>
+        </div>
+        <div id = "container">
+            <div id = "login_holder">
+                <div id = "login">
+                    <div id = "i-one"><i class = "far fa-user"></i></div>
+                    <form method = "POST" autocomplete="off" id = "form">
+                        {% csrf_token %}
+                        <div class = "holder">
+                            <i class="fas fa-user"></i>
+                            <input type = "text" id = "username" placeholder="Enter username" name = "username" required/>
+                        </div>
+
+                        <div class = "holder">
+                            <i class = "fas fa-lock"></i>
+                            <input type = "password" id = "password" placeholder="Enter password" name = "password" required/>
+                        </div>
+                        <button type = "submit" onclick = "login(this)">LOG IN</button>
+                    </form>
+                    <p>live</p>
+                </div>
+                <div class = "divtwo">
+                    <a style = "margin-left: 25px;" href = "{% url 'sign_up' %}">Create account</a>
+                    <a style = "margin-right: 25px;" href = "{% url 'reset_password' %}">Forgot password</a>
+                </div>
+            </div>
+
+            <div class = "divthree">
+                <h2>Virtual learning environment...</h2>
+                <p>
+                    Learn from anywhere, get the best classroom experience from anywhere all over
+                    the globe at a location of your convenience
+                </p>
+                <img src = "{% static 'selfie.svg' %}"/>
+                <p class = "footer">Quality classrooms</p>
+            </div>
+            <p class = "premium">virtual</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div id = "forgot_password">
+                    <div>
+                        <p><i class = "fas fa-exclamation-triangle"></i> Wrong log in details, please try again or click the forgot password link
+                            for help
+                        </p>
+                        <button onclick = "close_item()">Ok</button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </body>
+</html>

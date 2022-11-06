@@ -1,0 +1,87 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Vschools | Uploaded files</title>
+        <link rel = "stylesheet" href = "{% static 'dark/uploaded_files.css' %}"/>
+        <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    </head>
+    <body>
+        <div id = "navbar">
+            <h1>Shark</h1>
+        </div>
+
+        {% if files %}
+            {% for item in files %}
+                {% if item.file_type == "video/mp4" %}
+                    <div class="container">
+                        <div class = "file_container">
+                            <i class = "fas fa-file-video"></i>
+                            <div>
+                                <a target = "_blank" href = "{{ item.file.url }}">{{ item.file_name }}</a>
+                            </div>
+                        </div>
+                        <p>Uploaded by {{ item.room_member.user.username }} {{ item.time|timesince }} ago</p>
+                    </div>
+                {% elif item.file_type == "image/jpeg" or item.file_type == "image/png" %}
+                    <div class = "container">
+                        <div class = "file_container">
+                            <i class = "fas fa-file-image"></i>
+                            <div>
+                                <a target = "_blank" href = "{{ item.file.url }}">{{ item.file_name }}</a>
+                            </div>
+                        </div>
+                        <p>Uploaded by {{ item.room_member.user.username }} {{ item.time|timesince }} ago</p>
+                    </div>
+                {% elif item.file_type == "application/pdf" %}
+                    <div class="container">
+                        <div class = "file_container">
+                            <i class = "fas fa-file-pdf"></i>
+                            <div>
+                                <a target = "_blank" href = "{{ item.file.url }}">{{ item.file_name }}</a>
+                            </div>
+                        </div>
+                        <p>Uploaded by {{ item.room_member.user.username }} {{ item.time|timesince }} ago</p>
+                    </div>
+                {% elif item.file_type == "audio/mpeg" or item.file_type == "audio/wav" %}
+                     <div class="container">
+                        <div class = "file_container">
+                            <i class = "fas fa-file-audio"></i>
+                            <div>
+                                <a target = "_blank" href = "{{ item.file.url }}">{{ item.file_name }}</a>
+                            </div>
+                        </div>
+                        <p>Uploaded by {{ item.room_member.user.username }} {{ item.time|timesince }} ago</p>
+                    </div>
+                {% elif item.file_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" %}
+                    <div class="container">
+                        <div class = "file_container">
+                            <i class = "fas fa-file-word"></i>
+                            <div>
+                                <a target = "_blank" href = "{{ item.file.url }}">{{ item.file_name }}</a>
+                            </div>
+                        </div>
+                        <p>Uploaded by {{ item.room_member.user.username }} {{ item.time|timesince }} ago</p>
+                    </div>
+                {% elif item.file_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" %}
+                    <div class="container">
+                        <div class = "file_container">
+                            <i class = "fas fa-file-excel"></i>
+                            <div>
+                                <a target = "_blank" href = "{{ item.file.url }}">{{ item.file_name }}</a>
+                            </div>
+                        </div>
+                        <p>Uploaded by {{ item.room_member.user.username }} {{ item.time|timesince }} ago</p>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class = "no_recordings">
+                <i class = "far fa-file"></i>
+                <p class = "last_text">No uploaded files yet</p>
+            </div>
+        {% endif %}
+    </body>
+</html>

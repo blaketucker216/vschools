@@ -1,0 +1,61 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Shark | Home</title>
+        <link rel="shortcut icon" href="{% static 'selfie.svg' %}" type="image/svg"/>
+        <link id = "styles" rel = "stylesheet" href = "{% static 'dark/home.css' %}" type="text/css"/>
+        <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}" type="text/css"/>
+        <script src = "{% static 'home.js' %}" type = "text/javascript" defer></script>
+    </head>
+    <body>
+        <div id = "navbar" data-time = "{{ current_time }}">
+            <h1>Shark</h1>
+            <a href = "{% url 'settings' %}" style = "margin-left: auto;"><i class = "far fa-user"></i></a>
+            <a href = "{% url 'logout' %}"><i class = "fas fa-sign-out-alt"></i></a>
+            <img data-name = "LM" src = "{{ profile_picture.url }}"/>
+        </div>
+        <div class = "holder">
+            <div class = "join">
+                <h2><i class = "fas fa-link"></i> Hello {{ request.user.username }}, you are welcome here.</h2>
+                <p class = "main_text">
+                    Let's help you hold premium virtual meetings and interact with partners, friends and family
+                    at different places around the globe... 
+                </p>
+                <form onsubmit = "join_meeting(event)" autocomplete = "off">
+                    <textarea placeholder = "Join ongoing class by passcode....." name = "passcode" required></textarea>
+                    <button>Join session</button>
+                </form>
+            </div>
+            <div class = "create">
+                <div class = "child_one">
+                    <div>
+                        <img src = "{% static 'conversation.svg' %}"/>
+                    </div>
+                    <div>
+                        <p>
+                            <i class = "fas fa-users"></i> Start an instant class...
+                        </p>
+                        <form method = "POST" autocomplete = "off" onsubmit = "create_meeting(this)">
+                            {% csrf_token %}
+                            <input type = "text" placeholder = "Name your class....." name = "meeting_title" required/>
+                            <button>Start class</button>
+                        </form>
+                    </div>
+                </div>
+                <div class = "child_two">
+                    <h2>
+                       All recorded classes can be seen <a href = "{% url 'recorded_files' user_token %}">here</a>
+                    </h2>
+                    <p class = "main_text">
+                        follow the link above to review your recorded meetings
+                    </p>
+                </div>
+            </div>
+        </div>
+        <p class = "footer">premium</p>
+    </body>
+</html>

@@ -1,0 +1,12 @@
+{% autoescape off %}
+
+Hi {{ user.username }}
+
+Please use the link below to activate your account, this is to confirm that you are the owner of this
+email address
+
+http://{{domain}}{% url 'activate' uidb64=uid token=token %}
+
+{% endautoescape %}
+
+{% load static %}

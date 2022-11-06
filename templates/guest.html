@@ -1,0 +1,39 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Vschools | get started</title>
+        <link rel = "stylesheet" href = "{% static 'dark/guest.css' %}"/>
+        <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    </head>
+    <body>
+        <div id = "navbar">
+            <h1>Vschools</h1>
+            <a class = "link_one" href = "#">live</a>
+            <a class = "link_two" hrefhref = "#">join</a>
+        </div>
+        <div id = "main">
+            <div id = "divone">
+                <h2><i class = "fas fa-link"></i> Premium virtual meetings.</h2>
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus et 
+                    egestas nibh. Donec et dapibus orci. Pellentesque rutrum dolor sit amet 
+                    luctus hendrerit. Morbi imperdiet eget turpis eu commodo. Vestibulum arcu 
+                    dui, faucibus fermentum mollis quis, aliquam ac orci. Curabitur facilisis 
+                    laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum
+                </p>
+                <input type = "text" placeholder = "Enter meeting invite link...."/>
+                <button>Join</button>
+            </div>
+            <div id = "divtwo">
+                <div class = "image_holder">
+                    <img src = "{% static 'undraw_selfie_re_h9um.svg' %}"/>
+                </div>
+                <p>Vschools streamer</p>
+            </div>
+        </div>
+        <p class = "footer">Vschools premium</p>
+    </body>
+</html>

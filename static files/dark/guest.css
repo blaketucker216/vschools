@@ -1,0 +1,166 @@
+* {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    outline: none;
+    page-break-inside: avoid;
+}
+
+body {
+    background-color: rgb(0, 0, 0);
+    padding-top: 100px;
+} 
+
+#navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.76);
+    border-bottom: 1px solid rgba(245, 245, 245, 0.13);
+}
+
+#navbar h1 {
+    color: white;
+    margin-left: 20px;
+    font-weight: lighter;
+    font-size: 45px;
+    font-family: 'Brush Script MT', cursive;
+}
+
+#navbar a {
+    margin-left: auto;
+    margin-right: 24px;
+    color: rgba(245, 245, 245, 0.719);
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 15px;
+    background-color: rgba(128, 128, 128, 0.24);
+    padding: 10px 13px 10px 13px;
+}
+
+#main {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.212);
+}
+
+#divone {
+    padding: 10px;
+    width: 50%;
+}
+
+#divone h2 {
+    font-weight: lighter;
+    font-size: 30px;
+    color: rgba(255, 255, 255, 0.904);
+    margin-top: 0;
+}
+
+#divone p {
+    color: rgba(255, 255, 255, 0.527);
+    font-weight: lighter;
+}
+
+#divtwo input {
+    background: none;
+    border: 1px solid rgba(128, 128, 128, 0.315);
+    width: calc(100% - 30px);
+    padding: 15px;
+    font-size: 17px;
+    margin-top: 15px;
+    border-radius: 8px;
+    color: grey;
+}
+
+#divtwo button {
+    border: none;
+    background-color: rgba(128, 128, 128, 0.123);
+    width: 100%;
+    padding: 15px;
+    font-size: 17px;
+    margin-top: 15px;
+    border-radius: 8px;
+    color: rgba(245, 245, 245, 0.685);
+    border: 1px solid rgba(128, 128, 128, 0.192);
+}
+
+#parent {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#divtwo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid rgba(128, 128, 128, 0.171);
+    padding-top: 20px;
+    padding-bottom: 20px;
+    width: 70%;
+    border-radius: 10px;
+    background-color: rgba(128, 128, 128, 0.034);
+    margin-top: 60px;
+}
+
+#divtwo p {
+    color: rgba(255, 255, 255, 0.322);
+    font-size: 13px;
+}
+
+#divtwo h3 {
+    color: rgba(245, 245, 245, 0.76);
+    font-weight: lighter;
+    margin: 0;
+}
+
+.image_holder {
+    border-radius: 50%;
+    margin-top: 20px;
+    background-color: rgba(128, 128, 128, 0.048);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 1px solid rgba(128, 128, 128, 0.185);
+}
+
+#divone img {
+    width: 40%;
+}
+
+.footer {
+    color: rgba(245, 245, 245, 0.521);
+    text-align: center;
+    font-family: 'Brush Script MT', cursive;
+    font-weight: lighter;
+    font-size: 25px;
+}
+
+@media screen and (max-width: 700px) {
+    #main {
+        flex-direction: column;
+    }
+
+    #divone {
+        width: 97%;
+    }
+
+    #parent {
+        margin: 0;
+        width: 97%;
+        margin-top: 20px;
+    }
+
+    #divtwo {
+        width: 100%;
+        margin-top: 20px;
+    }
+    
+   }

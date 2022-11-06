@@ -1,0 +1,56 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Vschools | sign up</title>
+        <link rel = "stylesheet" href = "{% static 'dark/sign_up.css' %}"/>
+        <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src = "{% static 'sign_up.js' %}" defer></script>
+    </head>
+    <body>
+        <div id = "navbar">
+            <h1>Shark</h1>
+        </div>
+        <form method = "POST" autocomplete="off" id = "form">
+        {% csrf_token %}
+        <div class = "holder">
+            <h2>Enter username</h2>
+            <p>Enter your names here both first and last name that will help other users
+                to identify you in meeting sessions...
+            </p>
+            <input type = "text" placeholder = "Enter first name" name = "first_name" autofocus required/>
+            <input type = "text" placeholder = "Enter last name" name = "last_name" required/>
+        </div>
+        <div class = "holder">
+            <h2>Enter e-mail</h2>
+            <p>Enter your e-mail address, this email address shall be have to be verified for 
+                security purposes...
+            </p>
+            <input type = "email" name = "email" placeholder = "Enter your e-mail" required/>
+        </div>
+        <div class = "holder">
+            <h2>Enter password</h2>
+            <p>Enter your password below, your password has to have atleast 8 characters and atmost 
+                32 characters...
+            </p>
+            <input type = "password" min = "8" max = "32" name = "password_one" placeholder = "Enter password here" required/>
+            <input type = "password" min = "8" max = "32" name = "password_two" placeholder = "Confirm password" required/>
+        </div>
+        <button type = "submit">Submit</button>
+    </form>
+    <div class = "holder2">
+        <button onclick = "submit()">Submit</button>
+        <h2>Sign up and link up with friends</h2>
+        <p>Enter all your information above to get started</p>
+        <div>
+            <i data-description = 'invite' class = "fas fa-link"></i>
+            <i data-description = 'meet' class = "fas fa-users"></i>
+            <i data-description = 'screen' class = "fas fa-laptop"></i>
+        </div>
+    </div>
+    <p class = "premium">premium</p>
+    </body>
+</html>

@@ -1,0 +1,35 @@
+{% load static %}
+
+<!DOCTYPE html> 
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Vschools | Meet</title>
+        <link rel = "stylesheet" id = "styles" href = "{% static 'dark/meeting_ended.css' %}"/>
+        <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    </head>
+    <body>
+        <h1>Meeting has been ended.</h1>
+        <p>
+            This meeting has been ended by host, you can return to home.
+        </p>
+        <a class = "return_to_home" href = "{% url 'home' %}">Return to home.</a>
+        <div id = "divone">
+            <div>
+                <h2>Join another meeting</h2>
+                <p>
+                    Join another ongoing meeting by entering the meeting invite link
+                    below
+                </p>
+            </div>
+            <div>
+                <h2>Start new meeting</h2>
+                <p>
+                    Start a new meeting and reach get to reach out to people around the
+                    globe virtually
+                </p>
+            </div>
+        </div>
+    </body>
+</html>

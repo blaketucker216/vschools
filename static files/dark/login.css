@@ -1,0 +1,263 @@
+* {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    outline: none;
+}
+
+body {
+    background-color: rgb(0, 0, 0);
+} 
+
+#navbar {
+    width: 100%;
+    height: 70px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 2px solid rgba(128, 128, 128, 0.116);
+    z-index: 5;
+    background-color: rgba(128, 128, 128, 0.082);
+}
+
+#navbar h1{
+    margin-left: 30px;
+    font-size: 40px;
+    color: rgba(245, 245, 245, 0.753);
+    font-weight: lighter;
+}
+
+#container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    padding-top: 80px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+#login_holder {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+#login {
+    align-self: center;
+    height: 410px;
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-right: 20px;
+    padding-left: 20px;
+    margin: 20px;
+    
+}
+
+#i-one i {
+    font-size: 80px;
+    padding: 30px 35px 30px 35px;
+    border-radius: 110px;
+    margin-top: 20px;
+    align-self: center;
+    color: rgba(245, 245, 245, 0.493);
+    background-color: rgba(128, 128, 128, 0.082);
+    border: 1px solid rgba(128, 128, 128, 0.171);
+}
+
+.holder {
+    margin-top: 15px;
+    padding: 10px 0 10px 10px;
+    border-radius: 8px;
+    width: 230px;
+    background-color: rgba(128, 128, 128, 0.062);
+    transition: background-color .3s;
+    border: 1px solid rgba(128, 128, 128, 0.171);
+}
+
+.holder:hover {
+    background-color: rgba(128, 128, 128, 0.123);
+}
+
+.holder i {
+    color: rgba(245, 245, 245, 0.616);
+}
+
+.holder input {
+    background: none;
+    border: none;
+    margin-left: 5px;
+    color: grey;
+    width: 80%;
+}
+
+#login button {
+    margin-top: 15px;
+    border: none;
+    font-weight: bold;
+    border-radius: 6px;
+    width: 100%;
+    height: 45px;
+    transition: .3s box-shadow;
+    position: relative;
+    color: rgba(245, 245, 245, 0.575);
+    background-color: rgba(128, 128, 128, 0.116);
+    border: 1px solid rgba(128, 128, 128, 0.116);
+}
+
+#login p {
+    align-self: center;
+    margin-top: 10px;
+    color: rgba(245, 245, 245, 0.466);
+    font-size: 23px;
+    font-family: 'Brush Script MT', cursive;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 99%;
+}
+
+#login p::before {
+    content: "";
+    border-top: 1px solid rgba(245, 245, 245, 0.137);
+    height: 2px;
+    width: 39%;
+    margin-right: 8px;
+}
+
+#login p::after {
+    content: "";
+    border-top: 1px solid rgba(245, 245, 245, 0.137);
+    height: 2px;
+    width: 39%;
+    margin-left: 8px;
+}
+
+.divtwo {
+    width: 250px;
+    display: flex;
+    flex-direction: row;
+    align-self: center;
+    justify-content: space-around;
+}
+
+.divtwo a {
+    font-size: 13px;
+    color: rgba(245, 245, 245, 0.493);
+}
+
+#forgot_password {
+    background-color: rgba(0, 0, 0, 0.959);
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+#forgot_password div {
+    width: 250px;
+    height: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(18,18,18);
+    position: relative;
+}
+
+#forgot_password div p {
+    color: rgba(255, 0, 0, 0.897);
+    margin-top: 0;
+    font-size: 18px;
+}
+
+#forgot_password div button {
+    background: none;
+    color: none;
+    padding: 10px;
+    border: none;
+    color: grey;
+    border-radius: 6px;
+    font-weight: bold;
+    width: 100%;
+    border: 1px solid rgba(128, 128, 128, 0.116);
+}
+
+.divthree {
+    height: 410px;
+    width: 300px;
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.divthree h2{
+    color: rgba(245, 245, 245, 0.678);
+    font-weight: lighter;
+}
+
+.divthree p {
+    color: rgba(245, 245, 245, 0.349);
+    margin: 0;
+}
+
+.divthree img {
+    width: calc(100% - 30px);
+    padding: 26px;
+    border-radius: 50%;
+    align-self: center;
+}
+
+.footer {
+    color: rgba(245, 245, 245, 0.521);
+    text-align: center;
+    font-family: 'Brush Script MT', cursive;
+    font-weight: lighter;
+    font-size: 25px;
+}
+
+.premium {
+    font-size: 30px;
+    font-family: 'Brush Script MT', cursive;
+    font-weight: lighter;
+    color: rgba(245, 245, 245, 0.671);
+    position: relative;
+    width: 94%;
+    text-align: center;
+    margin: 0;
+    margin-bottom: 80px;
+}
+
+.premium::before {
+    content: "";
+    border-top: 1px solid rgba(245, 245, 245, 0.11);
+    height: 30px;
+    width: 42%;
+    margin-right: 8px;
+    position: absolute;
+    top: 20px;
+    left: 0;
+}
+
+.premium::after {
+    content: "";
+    border-top: 1px solid rgba(245, 245, 245, 0.11);
+    height: 30px;
+    width: 42%;
+    margin-right: 8px;
+    position: absolute;
+    top: 20px;
+    right: 0;
+}

@@ -1,0 +1,184 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Shark | Meet</title>
+        <link rel = "stylesheet" href = "{% static 'dark/meet.css' %}"/>
+        <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <script src = "{% static 'qr_code/qrcode.js' %}"></script>
+        <script src = "{% static 'AgoraRTC_N-4.10.2.js' %}" type = "text/javascript"></script>
+        <script src="https://sdk.symbl.ai/js/beta/symbl-web-sdk/latest/symbl.min.js"></script>
+        {% if request.user.is_authenticated %}
+            <script src = "{% static 'meet.js' %}" type = "text/javascript" defer></script>
+        {% else %}
+            <script src = "{% static 'unauthenticated.js' %}" type = "text/javascript" defer></script>
+        {% endif %}
+
+    </head>
+    <body>
+        <div id = "main" data-username = "{{ request.user.username }}" data-channel = "{{ request.user.user_token }}">
+            <div id = "stream_title">
+                <img src = "{{ host_profile_pic.url }}"/>
+                <h2>{{ request.meeting_passcode }}</h2>
+                <p>meeting passcode</p>
+                <button class = "hands_button" onclick = "raise_hand(this)" style = "margin-left: auto;"><i class = "far fa-hand-paper"></i></button>
+                <button onclick = "captions(this)"><i class = "far fa-closed-captioning"></i></button>
+                <button onclick = "options()"><i class = "fas fa-ellipsis-h"></i></button>
+            </div>
+            <div id = "container" data-token = "{{ request.user.user_token }}">
+                <div class = "loader_holder">
+                    <div class = "lds-ring">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <p class = "text">Preparing session....</p>
+                </div>
+                <div id = "options" onblur = "close_options()">
+                    <button onclick = "get_link(this)"><i class = "fas fa-link"></i> Get invite link</button>
+                    <button class = 'raise_hands' onclick = "show_hands()" data-hands = "0"><i class = "fas fa-hand-paper"></i> All hands <span id = "all_hands">0</span></button>
+                    <button onclick = "show_qrcode()"><i class = "fas fa-qrcode"></i> Show QR Code</button>
+                    <button onclick = "record_meeting(this)"><i class = "fas fa-record-vinyl"></i> Record meeting</button>
+                    <button onclick = "open_whiteboard(this)"><i class = "fas fa-chalkboard"></i> Whiteboard</button>
+                    <button onclick = "UploadedFiles()"><i class = "fas fa-file"></i> Uploaded files</button>
+                    <button onclick = "open_chats()" style = "border: none;"><i class = "fas fa-envelope"></i> Live chat</button>
+                </div>
+                <div id = "captions">
+                    <i class = "far fa-closed-captioning"></i>
+                </div>
+                
+                <button id = "start_meeting" onclick = "start_meeting(this)"><i class = "fas fa-link"></i> Click to enter meeting</button>
+                <div id = "notifications">
+                </div>
+            </div>
+            <div id = "controls" data-profile_picture = "{{ profile_picture.url }}" data-authorization = "{{ authorization }}">
+                <button class = "control_buttons" data-description = "disable" onclick = "handle_camera(this)"><i class = "fas fa-video"></i></button>
+                <button class = "control_buttons" data-description = "mute" onclick = "handle_audio(this)" disabled><i class = "fas fa-microphone"></i></button>
+                <button class = "control_buttons" data-description = "0" onclick = "get_views()"><i class = "fas fa-users"></i></button>
+                <button class = "control_buttons" data-description = "screen" onclick = "screen_sharing(this)" disabled><i class = "fas fa-laptop"></i></button>
+                <button class = "stop_live" data-description = "leave" disabled onclick = "leaveAndRemoveLocalStream()"><i class = "fas fa-stop"></i></button>
+            </div>
+
+            <div id = "viewers">
+                <div class = "divone">
+                    <h3>Participants</h3>
+                    <button class = "close" onclick = "close_items(this)"><i class = "fas fa-times"></i></button>
+                    <div class = "user_holder">
+                        <i class = "fas fa-users"></i> 
+                    </div>
+                    <div class = "search_holder">
+                        <input type = "text" oninput = 'search_user(this)' placeholder = "Search participant here...."/>
+                        <button class = "search_button"><i class = "fas fa-search"></i></button>
+                    </div>  
+                </div> 
+            </div>
+
+            <div id = "hands">
+                <div class = "divone">
+                    <h3>Raised hands</h3>
+                    <button class = "close" onclick = "close_items(this)"><i class = "fas fa-times"></i></button>
+                    <div class = "raised_hands">
+                        <div>
+                            <i class = "far fa-hand-paper"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class = "outer_comments">
+                <div id = "comments">
+                    <button class = "close_comments" onclick = 'close_comments(this)'><i class = "fas fa-times"></i></button>
+                    <h4>Live chat</h4>
+                    <div class = "comment_holder">
+                        <i class = "fas fa-comments background-icon"></i>
+                        {% if room_chats %}
+                            {% for message in room_chats %}
+                                <div class = "message_container">
+                                    <img class = 'profile_picture' src = "{{ message.profile_picture.url }}"/>
+                                    <p class = "user_name">{{ message.room_member.user.username }} <span>{{ message.time|timesince }} ago</span></p>
+                                    {% if message.message %}
+                                        <p class = "message">{{ message.message|urlize }}</p>
+                                    {% endif %}
+                                    {% if message.file %}
+                                        {% if message.file_type == "video/mp4" %}
+                                            <div class = "file_container">
+                                                <i class = "fas fa-file-video"></i>
+                                                <div>
+                                                    <a target = "_blank" href = "{{ message.file.url }}">{{ message.file_name }}</a>
+                                                </div>
+                                            </div>
+                                        {% elif message.file_type == "image/jpeg" or message.file_type == "image/png" %}
+                                            <div class = "file_container">
+                                                <i class = "fas fa-file-image"></i>
+                                                <div>
+                                                    <a target = "_blank" href = "{{ message.file.url }}">{{ message.file_name }}</a>
+                                                </div>
+                                            </div>
+                                        {% elif message.file_type == "application/pdf" %}
+                                            <div class = "file_container">
+                                                <i class = "fas fa-file-pdf"></i>
+                                                <div>
+                                                    <a target = "_blank" href = "{{ message.file.url }}">{{ message.file_name }}</a>
+                                                </div>
+                                            </div>
+                                        {% elif message.file_type == "audio/mpeg" or message.file_type == "audio/wav" %}
+                                            <div class = "file_container">
+                                                <i class = "fas fa-file-audio"></i>
+                                                <div>
+                                                    <a target = "_blank" href = "{{ message.file.url }}">{{ message.file_name }}</a>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class = "entry">
+                        <input type = "file" onchange = "sendFile(this)" id = "photo" hidden/>
+                        <button onclick = "getImage()"><i class = "fas fa-paperclip"></i></button>
+                        <input type = "text" onkeypress = "add_comment_by_enter(event)" placeholder = "Send public message...."/>
+                        <button onclick = "add_comment(this)"><i class = "far fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id = "meeting_link">
+            <div>
+                <h2><i class = "fas fa-link"></i> MEETING INVITE LINK</h2>
+                <p>Meeting invite link is stated below and passcode is <span>{{ request.meeting_passcode }}</span></p>
+                <input type = "text" placeholder = 'Meeting invite link' value = "{{ meeting_link }}"/>
+                <button onclick = "copy_link(this)"><i class = "far fa-copy"></i> Copy link</button>
+            </div>
+        </div>
+        <div id = "qrcode">
+            <div>
+
+            </div>
+        </div>
+        <div id = 'uploadProgress'>
+            <div id = 'progressContainer'>
+                <h2><i class = "fas fa-upload"></i> Uploading file</h2>
+                <div id = "progressElement">
+                    <div></div>
+                </div>
+                <p>0%</p>
+                <button>Cancel</button>
+            </div>
+        </div>
+        <p id = "caption_text">
+            <span><i class = "far fa-closed-captioning"></i> Lule Mark</span> This is caption text right here please see it
+        </p>
+    </body>
+</html>
