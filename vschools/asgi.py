@@ -10,12 +10,15 @@ https://docs.djangoproject.com/en/3.1/howto/deployment/asgi/
 import os
 import django
 
+
+from channels.auth import AuthMiddlewareStack
 from django.core.asgi import get_asgi_application
 from channels.security.websocket import AllowedHostsOriginValidator, OriginValidator
 from django.conf.urls import url
 from decouple import config
-
+django_asgi_app = get_asgi_application()
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', f'{config("PROJECT_NAME")}.settings')
+os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 django.setup()
 
 from channels.auth import AuthMiddlewareStack
@@ -23,7 +26,7 @@ from main.consumers import ChatConsumer
 from channels.routing import ProtocolTypeRouter, URLRouter
 
 application = ProtocolTypeRouter({
-    'http':get_asgi_application(),
+    'http':django_asgi_app,
     'websocket':AllowedHostsOriginValidator(
         AuthMiddlewareStack(
             URLRouter(

@@ -31,7 +31,6 @@ ALLOWED_HOSTS = ['*']
 
 ROOT_URLCONF = f'{config("PROJECT_NAME")}.urls'
 
-ASGI_APPLICATION = f'{config("PROJECT_NAME")}.asgi.application'
 
 # Application definition
 
@@ -94,7 +93,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = f'{config("PROJECT_NAME")}.wsgi.application'
+# WSGI_APPLICATION = f'{config("PROJECT_NAME")}.wsgi.application'
+ASGI_APPLICATION = f'{config("PROJECT_NAME")}.asgi.application'
+
 
 
 # Database
