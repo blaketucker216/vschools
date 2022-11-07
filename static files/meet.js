@@ -67,10 +67,10 @@ document.getElementById('options').addEventListener('mouseup',() => {
 var element = Array.from(document.getElementsByClassName('hands_button'))[0];
 element.style.setProperty('--raised_hands','none');
 
-if (window.location.protocol == 'https:'){
-    connection_protocol = 'wss';
-}else {
+if (window.location.protocol == 'http:'){
     connection_protocol = 'ws';
+}else {
+    connection_protocol = 'wss';
 }
 
 let websocket_url = `${connection_protocol}://${window.location.host}/meet/${CHANNEL}/`;
