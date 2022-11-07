@@ -95,7 +95,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = f'{config("PROJECT_NAME")}.wsgi.application'
+# WSGI_APPLICATION = f'{config("PROJECT_NAME")}.wsgi.application'
+
 
 
 # Database
