@@ -15,7 +15,7 @@ from channels.security.websocket import AllowedHostsOriginValidator, OriginValid
 from django.conf.urls import url
 from decouple import config
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', f'{config("PROJECT_NAME")}.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'vschools.settings')
 django.setup()
 
 from channels.auth import AuthMiddlewareStack

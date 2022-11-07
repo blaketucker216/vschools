@@ -29,14 +29,15 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = ['*']
 
-ROOT_URLCONF = f'{config("PROJECT_NAME")}.urls'
+ROOT_URLCONF = 'vschools.urls'
 
-ASGI_APPLICATION = f'{config("PROJECT_NAME")}.asgi.application'
+ASGI_APPLICATION = 'vschools.asgi.application'
 
 # Application definition
 
 INSTALLED_APPS = [
     'channels',
+    "daphne",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
