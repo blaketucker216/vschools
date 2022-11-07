@@ -16,6 +16,7 @@ from django.conf.urls import url
 from decouple import config
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'vschools.settings')
+os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 django.setup()
 
 from channels.auth import AuthMiddlewareStack
