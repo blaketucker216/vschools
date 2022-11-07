@@ -68,7 +68,7 @@ var element = Array.from(document.getElementsByClassName('hands_button'))[0];
 element.style.setProperty('--raised_hands','none');
 
 if (window.location.protocol == 'https:'){
-    connection_protocol = 'ws';
+    connection_protocol = 'wss';
 }else {
     connection_protocol = 'ws';
 }
