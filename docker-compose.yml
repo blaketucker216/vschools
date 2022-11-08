@@ -4,7 +4,7 @@ services:
 
   backend:
     build: .
-    command: python manage.py runserver 0:8000
+    command: daphne vschools.asgi:application --port 8000 --bind 0.0.0.0 -v2
     volumes:
       - .:/code
     ports:
