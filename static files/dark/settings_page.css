@@ -5,7 +5,7 @@
 }
 
 body { 
-    background-color: rgb(0, 0, 0);
+    background-color: white;
     padding: 85px 20px 20px 20px;
 }
 
@@ -19,13 +19,13 @@ body {
     flex-direction: row;
     align-items: center;
     z-index: 5;
-    border-bottom: 3px solid rgba(128, 128, 128, 0.178);
-    background-color: rgb(10,10,10);
+    border-bottom: 2px solid rgba(128, 128, 128, 0.116);
+    background-color: rgba(128, 128, 128, 0.082);
 }
 
 #navbar h1{
     margin-left: 30px;
-    color: rgba(245, 245, 245, 0.753);
+    color: rgba(0, 0, 0, 0.653);
     font-size: 40px;
     font-family: 'Brush Script MT', cursive;
     font-weight: lighter;
@@ -63,7 +63,7 @@ body {
 }
 
 .info div h1 {
-    color: rgba(245, 245, 245, 0.658);
+    color: rgba(0, 0, 0, 0.653);
     font-size: 26px;
     font-weight: lighter;
     margin: 0;
@@ -81,7 +81,7 @@ body {
 }
 
 .info p {
-    color: rgba(245, 245, 245, 0.404);
+    color: rgba(0, 0, 0, 0.653);
     font-size: 14px;
     margin: 0;
     margin-bottom: 20px; 
@@ -162,7 +162,7 @@ body {
 }
 
 .holder h2 {
-    color: rgba(245, 245, 245, 0.747);
+    color: rgba(0, 0, 0, 0.653);
     font-weight: lighter;
     font-size: 19px;
     margin: 0;
@@ -171,7 +171,7 @@ body {
 }
 
 .holder p {
-    color: rgba(245, 245, 245, 0.356);
+    color: rgba(0, 0, 0, 0.653);
     font-weight: normal;
     font-size: 13px;
     margin: 0;
@@ -187,7 +187,7 @@ input[type="password"] {
     border-radius: 6px;
     transition: .7s box-shadow;
     transition: background-color .3s;
-    color: grey;
+    color: rgba(0, 0, 0, 0.637);
     margin-left: 20px;
     margin-right: 20px;
     background-color: rgba(128, 128, 128, 0.062);
@@ -211,7 +211,7 @@ input[type="text"] {
 .holder button {
     border: none;
     background-color: rgba(19, 19, 19, 0.651);
-    color: rgba(245, 245, 245, 0.637);
+    color: rgba(0, 0, 0, 0.596);
     padding: 12px 0 12px 10px;
     border: 1px solid rgba(128, 128, 128, 0.096);
     margin-left: 20px;

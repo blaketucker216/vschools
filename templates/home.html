@@ -5,7 +5,7 @@
     <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <title>Shark | Home</title>
+        <title>Agrogen | Home</title>
         <link rel="shortcut icon" href="{% static 'selfie.svg' %}" type="image/svg"/>
         <link id = "styles" rel = "stylesheet" href = "{% static 'dark/home.css' %}" type="text/css"/>
         <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}" type="text/css"/>
@@ -13,7 +13,7 @@
     </head>
     <body>
         <div id = "navbar" data-time = "{{ current_time }}">
-            <h1>Shark</h1>
+            <h1>Agrogen</h1>
             <a href = "{% url 'settings' %}" style = "margin-left: auto;"><i class = "far fa-user"></i></a>
             <a href = "{% url 'logout' %}"><i class = "fas fa-sign-out-alt"></i></a>
             <img data-name = "LM" src = "{{ profile_picture.url }}"/>

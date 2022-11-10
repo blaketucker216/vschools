@@ -44,14 +44,15 @@ class ChatConsumer(WebsocketConsumer):
 
         for item in Room_member.objects.filter(room=Room.objects.get(room_name=self.room_name)):
             obj = {'role':item.role,'user_joined':True,'uid':item.id}
-            if hasattr(item,'user'):
-                try:
-                    obj['name'] = item.user.username
-                    obj['profile_picture'] = account_info.objects.get(user=item.user).profile_picture.url
-                    obj['user_token'] = account_info.objects.get(user=item.user).user_token
+            print(account_info.objects.get(user=item.user).profile_picture.url)
+            try:
+                obj['name'] = account_info.objects.get(user=item.user).username
+                obj['profile_picture'] = account_info.objects.get(user=item.user).profile_picture.url
+                obj['user_token'] = account_info.objects.get(user=item.user).user_token
+            except:
+                pass
+                print(obj)
 
-                except:
-                    pass
             room_participants.append(obj)
         
         for item in room_participants:

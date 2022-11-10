@@ -4,7 +4,7 @@
 }
 
 body { 
-    background-color: rgb(0, 0, 0);
+    background-color: white;
     padding-top: 85px;
     padding-left: 20px;
     padding-right: 20px;
@@ -23,13 +23,13 @@ body {
     flex-direction: row;
     align-items: center;
     z-index: 5;
-    border-bottom: 1px solid rgb(23, 23, 23);
-    
+    border-bottom: 2px solid rgba(128, 128, 128, 0.123);
+    background-color: rgba(128, 128, 128, 0.082);
 }
 
 #navbar h1{
     margin-left: 30px;
-    color: rgba(245, 245, 245, 0.753);
+    color: rgba(0, 0, 0, 0.653);
     font-size: 40px;
     font-family: 'Brush Script MT', cursive;
     font-weight: lighter;
@@ -43,25 +43,25 @@ form {
 }
 
 .holder {
-    border: 1px solid rgb(24, 24, 24);
+    border: 1px solid rgba(24, 24, 24,0.2);
     display: flex;
     flex-direction: column;
     padding-bottom: 20px;
 }
 
 .holder h2 {
-    color: rgba(245, 245, 245, 0.575);
+    color: rgba(0, 0, 0, 0.653);
     font-weight: lighter;
     font-size: 17px;
     margin: 0;
     margin: 0 0 15px 0;
     padding: 13px 20px 15px 20px;
-    border-bottom: 1px solid rgba(19, 19, 19, 0.911);
-    background-color: rgba(19, 19, 19, 0.548);
+    border-bottom: 1px solid rgba(24, 24, 24,0.2);
+    background-color: rgba(128, 128, 128, 0.082);
 }
 
 .holder p {
-    color: rgba(245, 245, 245, 0.356);
+    color: rgba(0, 0, 0, 0.653);
     font-weight: normal;
     font-size: 13px;
     margin: 0;
@@ -78,7 +78,7 @@ form {
     border-radius: 6px;
     transition: .7s box-shadow;
     transition: background-color .3s;
-    background-color: rgba(128, 128, 128, 0.11);
+    background-color: rgba(208, 208, 208, 0.51);
     color: grey;
     margin-left: 20px;
     margin-right: 20px;
@@ -98,7 +98,7 @@ form button {
 }
 
 .holder2 button {
-    color: rgba(245, 245, 245, 0.689);
+    color: rgba(30, 30, 30, 0.689);
     font-weight: normal;
     font-size: 13px;
     border: none;
@@ -107,7 +107,7 @@ form button {
     border-radius: 7px;
     width: 200px;
     margin-top: 20px;
-    border: 1px solid rgba(125, 125, 125, 0.151);;
+    border: 1px solid rgba(125, 125, 125, 0.151);
 }
 
 

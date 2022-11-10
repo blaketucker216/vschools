@@ -4,7 +4,7 @@
 }
 
 body {
-    background-color: rgb(0, 0, 0);
+    background-color: white;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -21,19 +21,20 @@ body {
     flex-direction: row;
     align-items: center;
     z-index: 5;
-    border-bottom: 3px solid rgba(21, 21, 21, 0.863);
+    border-bottom: 2px solid rgba(128, 128, 128, 0.116);
+    background-color: rgba(128, 128, 128, 0.082);
 }
 
 #navbar h1{
     margin-left: 30px;
-    color: rgba(245, 245, 245, 0.753);
+    color: rgba(0, 0, 0, 0.653);
     font-size: 40px;
     font-family: 'Brush Script MT', cursive;
     font-weight: lighter;
 }
 
 h2 {
-    color: rgba(245, 245, 245, 0.829);
+    color: rgba(0, 0, 0, 0.527);
     font-weight: lighter;
     margin: 0;
     margin-top: 10px;
@@ -41,7 +42,7 @@ h2 {
 }
 
 p {
-    color: rgba(245, 245, 245, 0.425);
+    color: rgba(0, 0, 0, 0.653);
     font-weight: normal;
     font-size: 15px;
     text-align: center;

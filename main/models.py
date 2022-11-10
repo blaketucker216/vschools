@@ -13,6 +13,9 @@ class account_info(models.Model):
     user_token = models.TextField(unique=True)
     email_token = models.CharField(max_length=200, null=True, blank=True)
     email_verified = models.BooleanField(default=False)
+    first_name = models.TextField(null=True, blank=True)
+    last_name = models.TextField(null=True, blank=True)
+    username = models.TextField(null=True, blank=True)
 
 class Room(models.Model):
     room_name = models.TextField(unique=True)

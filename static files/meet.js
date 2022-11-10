@@ -64,8 +64,10 @@ document.getElementById('options').addEventListener('mouseup',() => {
     document.getElementById('options').style.display = "none";
 })
 
+/*
 var element = Array.from(document.getElementsByClassName('hands_button'))[0];
 element.style.setProperty('--raised_hands','none');
+*/
 
 if (window.location.protocol == 'http:'){
     connection_protocol = 'ws';
@@ -115,7 +117,6 @@ let createTracks = async () => {
     } catch (error) {
         console.log(error.message.toString())
         if (error.message.toString() == 'AgoraRTCError NOT_READABLE: NotReadableError: Could not start video source') {
-            console.log('this is an error message by Victor man');
             var target_element = document.getElementById('container').firstElementChild;
             target_element.firstElementChild.remove();
 

@@ -5,7 +5,7 @@
 }
 
 body {
-    background-color: rgb(0, 0, 0);
+    background-color: white;
     padding-top: 85px;
     display: flex;
     flex-direction: row;
@@ -23,13 +23,13 @@ body {
     flex-direction: row;
     align-items: center;
     z-index: 5;
-    border-bottom: 3px solid rgba(128, 128, 128, 0.123);
-    background-color: rgb(10,10,10);
+    border-bottom: 2px solid rgba(128, 128, 128, 0.116);
+    background-color: rgba(128, 128, 128, 0.082);
 }
 
 #navbar h1{
     margin-left: 30px;
-    color: rgba(245, 245, 245, 0.753);
+    color: rgba(0, 0, 0, 0.653);
     font-size: 40px;
     font-family: 'Brush Script MT', cursive;
     font-weight: lighter;
@@ -59,7 +59,6 @@ body {
     align-items: center;
     width: 100%;
     border-radius: 8px;
-    background-color: rgba(70, 70, 70, 0.305);
 }
 
 .file_container i {
@@ -101,7 +100,7 @@ body {
     font-size: 95px;
     width: 150px;
     height: 150px;
-    background-color: rgba(50, 50, 50, 0.323);
+    background-color: rgba(128, 128, 128, 0.082);
     display: flex;
     align-items: center;
     justify-content: center;

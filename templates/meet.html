@@ -23,9 +23,7 @@
                 <img src = "{{ host_profile_pic.url }}"/>
                 <h2>{{ request.meeting_passcode }}</h2>
                 <p>meeting passcode</p>
-                <button class = "hands_button" onclick = "raise_hand(this)" style = "margin-left: auto;"><i class = "far fa-hand-paper"></i></button>
-                <button onclick = "captions(this)"><i class = "far fa-closed-captioning"></i></button>
-                <button onclick = "options()"><i class = "fas fa-ellipsis-h"></i></button>
+                <button style = "margin-left: auto" onclick = "options()"><i class = "fas fa-ellipsis-h"></i></button>
             </div>
             <div id = "container" data-token = "{{ request.user.user_token }}">
                 <div class = "loader_holder">
@@ -66,6 +64,8 @@
                 <button class = "control_buttons" data-description = "disable" onclick = "handle_camera(this)"><i class = "fas fa-video"></i></button>
                 <button class = "control_buttons" data-description = "mute" onclick = "handle_audio(this)" disabled><i class = "fas fa-microphone"></i></button>
                 <button class = "control_buttons" data-description = "0" onclick = "get_views()"><i class = "fas fa-users"></i></button>
+                <button class = "control_buttons" data-description = "hands" onclick = "raise_hand(this)"><i class = "far fa-hand-paper"></i></button>
+                <button onclick = "captions(this)" class = "control_buttons" data-description = "caption"><i class = "far fa-closed-captioning"></i></button>
                 <button class = "control_buttons" data-description = "screen" onclick = "screen_sharing(this)" disabled><i class = "fas fa-laptop"></i></button>
                 <button class = "stop_live" data-description = "leave" disabled onclick = "leaveAndRemoveLocalStream()"><i class = "fas fa-stop"></i></button>
             </div>

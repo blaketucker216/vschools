@@ -144,6 +144,7 @@ def settings_page(request):
     user = request.user
     context = {'user':user}
     user.token = account_info.objects.get(user=user).user_token
+    user.username = account_info.objects.get(user=request.user).username
 
     if account_info.objects.get(user=request.user).profile_picture:
         user.profile_picture = account_info.objects.get(user=request.user).profile_picture
@@ -188,13 +189,14 @@ def sign_up_page(request):
 
         if not any([email == item.email for item in User.objects.all()]):
             if password_one == password_two:
-                user = User.objects.create_user(username,email,password_two)
+                user = User.objects.create_user(email,email,password_two)
                 user.first_name = first_name
                 user.last_name = last_name
                 email_token = str(uuid.uuid4())
                 user.save()
                 account_info(user=user,datejoined=timezone.now(),
-                        user_token=secrets.token_urlsafe(), email_token=email_token).save()
+                        user_token=secrets.token_urlsafe(), email_token=email_token,
+                        first_name=first_name,last_name=last_name,username=username).save()
                 room = Room(room_name=account_info.objects.get(user=user).user_token)
                 room.save()
                 MeetingWhiteboard(room=room).save()
@@ -332,6 +334,8 @@ def home_page(request):
         room.start_date = timezone.now()
         room.save()
         return redirect('meet',account_info.objects.get(user=request.user).user_token)
+
+    request.user.username = account_info.objects.get(user=request.user).username
 
     context = {'profile_picture':account_info.objects.get(user=request.user).profile_picture,
                 'user_token':account_info.objects.get(user=request.user).user_token,'current_time':timezone.now()}
