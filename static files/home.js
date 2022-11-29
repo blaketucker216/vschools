@@ -1,7 +1,6 @@
 function create_meeting(self){
-    var button = self.lastElementChild;
-    button.innerHTML = "Starting meeting...";
-    button.style.color = 'rgba(245, 245, 245, 0.44)';
+    window.open(`/meet/${self.dataset.user_token}`,'_self');
+
 }
 
 let join_meeting = (self) => {

@@ -3,10 +3,6 @@
     outline: none;
 }
 
-body {
-    background-color: white;
-} 
-
 #navbar {
     width: 100%;
     height: 70px;
@@ -16,15 +12,15 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    border-bottom: 2px solid rgba(128, 128, 128, 0.116);
     z-index: 5;
-    background-color: rgba(128, 128, 128, 0.082);
+    border-bottom: 1px solid rgba(128, 128, 128, 0.164);
+    background-color: rgba(200, 200, 200, 0.055);
 }
 
 #navbar h1{
     margin-left: 30px;
     font-size: 40px;
-    color: rgba(0, 0, 0, 0.653);
+    color: blue;
     font-weight: lighter;
 }
 
@@ -65,34 +61,32 @@ body {
     border-radius: 110px;
     margin-top: 20px;
     align-self: center;
-    color: rgba(0, 0, 0, 0.553);
-    background-color: rgba(128, 128, 128, 0.282);
-    border: 1px solid rgba(128, 128, 128, 0.171);
+    color: blue;
+    background-color: rgba(0, 0, 255, 0.26);
 }
 
 .holder {
     margin-top: 15px;
     padding: 10px 0 10px 10px;
-    border-radius: 8px;
+    border-radius: 6px;
     width: 230px;
-    background-color: rgba(128, 128, 128, 0.282);
+    background-color:rgba(0, 0, 255, 0.26);
     transition: background-color .3s;
-    border: 1px solid rgba(128, 128, 128, 0.171);
 }
 
 .holder:hover {
-    background-color: rgba(128, 128, 128, 0.123);
+    background-color: rgba(0, 0, 255, 0.342);
 }
 
 .holder i {
-    color: rgba(0, 0, 0, 0.553);
+    color: blue;
 }
 
 .holder input {
     background: none;
     border: none;
     margin-left: 5px;
-    color: grey;
+    color: blue;
     width: 80%;
 }
 
@@ -105,15 +99,14 @@ body {
     height: 45px;
     transition: .3s box-shadow;
     position: relative;
-    color: rgba(0, 0, 0, 0.675);
-    border: 1px solid rgba(128, 128, 128, 0.116);
-    background-color: rgba(128, 128, 128, 0.282);
+    color: white;
+    background-color: rgba(0, 0, 255, 0.856);
 }
 
 #login p {
     align-self: center;
     margin-top: 10px;
-    color: rgba(0, 0, 0, 0.553);
+    color: blue;
     font-size: 23px;
     font-family: 'Brush Script MT', cursive;
     margin-bottom: 0;
@@ -126,7 +119,7 @@ body {
 
 #login p::before {
     content: "";
-    border-top: 1px solid rgba(0, 0, 0, 0.201);
+    border-top: 1px solid rgba(0, 0, 255, 0.185);
     height: 2px;
     width: 39%;
     margin-right: 8px;
@@ -134,7 +127,7 @@ body {
 
 #login p::after {
     content: "";
-    border-top: 1px solid rgba(0, 0, 0, 0.201);
+    border-top: 1px solid rgba(0, 0, 255, 0.185);
     height: 2px;
     width: 39%;
     margin-left: 8px;
@@ -150,7 +143,7 @@ body {
 
 .divtwo a {
     font-size: 13px;
-    color: rgba(0, 0, 0, 0.503);
+    color: grey;
 }
 
 #forgot_password {
@@ -178,7 +171,7 @@ body {
 }
 
 #forgot_password div p {
-    color: rgba(0, 0, 0, 0.353);
+    color: rgba(255, 0, 0, 0.897);
     margin-top: 0;
     font-size: 18px;
 }
@@ -204,12 +197,12 @@ body {
 }
 
 .divthree h2{
-    color: rgba(0, 0, 0, 0.653);
+    color: rgba(0, 0, 0, 0.76);
     font-weight: lighter;
 }
 
 .divthree p {
-    color: rgba(0, 0, 0, 0.503);
+    color: grey;
     margin: 0;
 }
 
@@ -232,7 +225,7 @@ body {
     font-size: 30px;
     font-family: 'Brush Script MT', cursive;
     font-weight: lighter;
-    color: rgba(0, 0, 0, 0.571);
+    color: rgba(245, 245, 245, 0.671);
     position: relative;
     width: 94%;
     text-align: center;
@@ -242,7 +235,7 @@ body {
 
 .premium::before {
     content: "";
-    border-top: 1px solid rgba(0, 0, 0, 0.201);
+    border-top: 1px solid rgba(245, 245, 245, 0.11);
     height: 30px;
     width: 42%;
     margin-right: 8px;
@@ -253,7 +246,7 @@ body {
 
 .premium::after {
     content: "";
-    border-top: 1px solid rgba(0, 0, 0, 0.201);
+    border-top: 1px solid rgba(245, 245, 245, 0.11);
     height: 30px;
     width: 42%;
     margin-right: 8px;

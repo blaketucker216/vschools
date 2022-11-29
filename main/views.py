@@ -317,6 +317,11 @@ def meet_page(request, meeting_id):
     request.meeting_description = Room.objects.get(room_name=meeting_id).description
     request.meeting_passcode = Room.objects.get(room_name=meeting_id).passcode
 
+    try:
+        request.user.username = account_info.objects.get(user=request.user).username
+    except:
+        pass
+
     return render(request, "meet.html",context)
 
 @background(schedule=10)

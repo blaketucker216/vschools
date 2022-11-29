@@ -1,37 +1,54 @@
-if (navigator.mediaDevices.getDisplayMedia == undefined){controls.children[3].remove();};
+if (navigator.mediaDevices.getDisplayMedia == undefined){controls.children[6].remove();};
 var my_id;
 const username = document.getElementById('main').dataset.username;
 var notifications = document.getElementById('notifications');
 var container = document.getElementById('container');
 const APP_ID = '0eb3e08e01364927854ee79b9e513819';
 var authorization = document.getElementById('controls').dataset.authorization;
-var CHANNEL = document.getElementById('container').dataset.token;
+var CHANNEL = document.getElementById('options').dataset.channel;
 var connection_protocol;
 var profile_picture = document.getElementById('controls').dataset.profile_picture;
 var all_hands = document.getElementById('all_hands');
 var chats = false;
 var set_captions = false;
-var connection;
+var connection; 
 var resource_id_value;
 var sid;
 var time_string;
 var token;
 var socket;
+var playing = false;
+var time_limit;
+var room;
+var user_token;
+var all_users = 0;
 
 var file_types = ['audio/mpeg','audio/wav','application/pdf','image/jpeg','image/png','video/mp4',
                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
 
-var comment_holder = document.getElementById('comments').children[2];
-comment_holder.scrollTop = comment_holder.scrollHeight;
+var send_notification = (title, body, icon) => {
+    var notification = new Notification(title,{body:body,icon:icon});
+    if (Notification.permission === "granted") {
+        return notification;
+    }else if (Notification.permission !== "granted") {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                return notification;
+            }
+        })
+    }
+}
 
-function post_message(str) {
+/*function post_message(str) {
     var text = document.createElement('p');
     text.innerHTML = str;
-    notifications.appendChild(text);
+    notifications.prepend(text);
     notifications.scrollTop = notifications.scrollHeight;
-    setTimeout(() => {text.style.opacity = "0"}, 5000);
-}
+    text.style.opacity = "1";
+    setTimeout(() => {text.style.opacity = "0";}, 5000);
+    setTimeout(() => {text.style.display = "none";}, 6000);
+}*/
 
 let getCookie = (name) => {
     let cookieValue = null;
@@ -48,6 +65,7 @@ let getCookie = (name) => {
     return cookieValue;
 }
 
+/*
 var qr_code_holder = document.getElementById('qrcode');
 qr_code_holder.firstElementChild.setAttribute('autofocus','');
 var qr_code = new QRCode(document.getElementById('qrcode').firstElementChild,{
@@ -55,6 +73,7 @@ var qr_code = new QRCode(document.getElementById('qrcode').firstElementChild,{
     width: 128,
     height: 128
 });
+
 
 qr_code_holder.addEventListener('mousedown',() => {
     qr_code_holder.style.display = "none";
@@ -64,15 +83,15 @@ document.getElementById('options').addEventListener('mouseup',() => {
     document.getElementById('options').style.display = "none";
 })
 
-/*
 var element = Array.from(document.getElementsByClassName('hands_button'))[0];
 element.style.setProperty('--raised_hands','none');
+
 */
 
-if (window.location.protocol == 'http:'){
-    connection_protocol = 'ws';
-}else {
+if (window.location.protocol == 'https:'){
     connection_protocol = 'wss';
+}else {
+    connection_protocol = 'ws';
 }
 
 let websocket_url = `${connection_protocol}://${window.location.host}/meet/${CHANNEL}/`;
@@ -112,10 +131,13 @@ let createTracks = async () => {
         audioTrack = tracks[0];
         videoTrack = tracks[1];
 
+        await videoTrack.setMuted(true);
+        await audioTrack.setMuted(true);
+
         socket = new WebSocket(websocket_url);
         socket.addEventListener('message',getSocketMessages);
+
     } catch (error) {
-        console.log(error.message.toString())
         if (error.message.toString() == 'AgoraRTCError NOT_READABLE: NotReadableError: Could not start video source') {
             var target_element = document.getElementById('container').firstElementChild;
             target_element.firstElementChild.remove();
@@ -155,41 +177,23 @@ let joinAndDisplayLocalStream = async (token, UID) => {
 
     var holder = document.getElementById(my_id.toString());
 
-    var profile_picture = document.getElementById(`profile_picture_${my_id.toString()}`);
-    var microphone = document.getElementById(`name_${my_id.toString()}`).firstElementChild;
-
-    videoTrack.play(holder);
-
     var player = holder.lastElementChild;
     player.style.display = "flex";
     player.style.flexDirection = "column";
     player.style.alignItems = "center";
     player.style.justifyItems = "center";
-
-    profile_picture.style.display = "none";
-
-    var video = holder.lastElementChild.firstElementChild;
-    console.log(video);
-    video.setAttribute('style','height: 100%; width: auto; max-width: 100%;');
-
-    microphone.style.color = 'blue';
-    microphone.setAttribute('class','fas fa-microphone');
  
-
     client.on('token-privilege-will-expire',renew_client_token);
     client.on('token-privilege-did-expire',rejoin_session);
     client.on('user-left',handleUserLeft);
     client.on('user-unpublished',UserUnpublishedEvent);
 
-    if (videoInputDevices.length > 0) {
-        await client.publish(videoTrack);
-    }
+    /*setTimeout(() => {
+        var message = `Hello User your meeting session has reached its time limit`
+        post_message(message);
+    },2000)
 
-    if (audioInputDevices.length > 0) {
-        await client.publish(audioTrack);
-    }
-
-    /*if (CHANNEL == user_token) {
+    if (CHANNEL == user_token) {
         var time_values = {};
         var seconds = 0;
         var minutes = 0;
@@ -256,16 +260,13 @@ let handleJoinedUser = (item) => {
     holder.setAttribute('id',item.uid.toString());
     holder.setAttribute('class','holder');
     holder.setAttribute('ondblclick','full_screen(this)');
-    container.appendChild(holder);
+    document.getElementById('hosts').appendChild(holder);
 
     holder.appendChild(name);
     holder.appendChild(profile_picture);
 
     var loader = container.firstElementChild;
 
-    if (loader.getAttribute('class') == "loader_holder"){
-        loader.remove();
-    }
 
     var player = holder.lastElementChild;
     
@@ -273,21 +274,37 @@ let handleJoinedUser = (item) => {
     player.style.flexDirection = "column";
     player.style.alignItems = "center";
     player.style.justifyItems = "center";
-    
-    var parent = Array.from(document.getElementsByClassName('user_holder'))[0];
 
-    var new_user = document.createElement('p');
-    new_user.setAttribute('id',`participant_${item.uid.toString()}`);
-    new_user.innerHTML = `<img src = '${item.profile_picture}'/>${item.name}`;
-    parent.appendChild(new_user);
+    var loader = container.firstElementChild;
 
-    var button  = document.getElementById('controls').children[2];
-    button.setAttribute('data-description',parent.children.length - 1);
+    if (loader.getAttribute('class') == "loader_holder"){
+        loader.remove();
+    }
+
+    Array.from(document.getElementsByClassName('holder')).forEach((item) => {
+        item.style.width = "300px";
+        item.style.height = "300px";
+    })
+
+    var target_item = `
+        <div id = 'participant_${item.uid}'>
+            <img src = "${item.profile_picture}"/>
+            <p>${item.name}</p>
+        </div>
+    `
+
+    var parent = document.getElementById('meeting_info').firstElementChild.children[2];
+    parent.innerHTML += target_item;
+}
+
+function view_users() {
+    document.getElementById('meeting_tools').lastElementChild.click();
 }
 
 let handleNewUser = async (user, mediaType) => {
     await client.subscribe(user, mediaType);
     var holder = document.getElementById(user.uid.toString());
+    console.log(holder);
     if (mediaType === 'video'){
         user.videoTrack.play(holder);
         var player = holder.lastElementChild;
@@ -310,17 +327,22 @@ let handleNewUser = async (user, mediaType) => {
         microphone.setAttribute('class','fas fa-microphone');
         microphone.style.color = "blue";
     }
+
+    Array.from(holder.children).forEach((item) => {
+        item.style.backgroundColor = "rgba(198, 198, 198, 0.102";
+    })
+
+    all_users += 1
+
+    document.getElementById('all_users').setAttribute('data-name',all_users.toString());
 }
 
 let handleUserLeft = async (user) => {
     document.getElementById(user.uid.toString()).remove();
-
     document.getElementById(`participant_${user.uid.toString()}`).remove();
 
-    var parent = Array.from(document.getElementsByClassName('user_holder'))[0];
-
-    var target_button = document.getElementById('controls').children[2];
-    target_button.setAttribute('data-description',parent.children.length - 1);
+    all_users -= 1
+    document.getElementById('all_users').setAttribute('data-name',all_users.toString());
 }
 
 let leaveAndRemoveLocalStream = async () => {
@@ -350,7 +372,7 @@ function sendFile(self) {
 
         var xhr = new XMLHttpRequest();
 
-        xhr.upload.onloadstart = () => {
+        /*xhr.upload.onloadstart = () => {
             document.getElementById('uploadProgress').style.display = "flex";
         }
 
@@ -380,7 +402,7 @@ function sendFile(self) {
             var percentage = document.getElementById('progressContainer').children[2];
             percentage.innerHTML = `${Math.trunc(progressValue)}%`;
 
-        }
+        }*/
 
         xhr.onreadystatechange = () => {
             if (xhr.readyState == XMLHttpRequest.DONE) {
@@ -398,7 +420,7 @@ function sendFile(self) {
             xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
             xhr.send(form);
         }else {
-            post_message('<i class = "fas fa-exclamation-triangle"></i> Failed to send file')
+            post_message('<i class = "fas fa-exclamation-triangle"></i> Failed to send file');
         }
     }
 }
@@ -421,7 +443,7 @@ let getCurrentTime = () => {
 
 let getSocketMessages = function(self){
     var response = JSON.parse(self.data);
-    var comment_holder = document.getElementById('comments').children[2];
+    var comment_holder = document.getElementById('livechat').children[1];
 
     if(response.message){
         var container = document.createElement('div');
@@ -438,13 +460,10 @@ let getSocketMessages = function(self){
         comment_holder.scrollTop = comment_holder.scrollHeight;
 
         if (chats === false) {
-            post_message(`<span>${response.name}</span> ${response.message}`)
+            send_notification(response.name, response.message, response.profile_picture);
         }
     }else if (response.raise_hand) {
-        var element = Array.from(document.getElementsByClassName('hands_button'))[0];
-        element.style.setProperty('--raised_hands','block');
-
-        post_message(`<i class = "fas fa-hand-paper"></i> ${response.username}`)
+        send_notification(response.username,`${response.username} is raising a hand`,response.profile_picture);
 
         var parent = Array.from(document.getElementsByClassName('raised_hands'))[0];
         var name = document.createElement('p');
@@ -454,28 +473,22 @@ let getSocketMessages = function(self){
         var hands = document.getElementById('hands').firstElementChild.children[2].children.length - 1;
         all_hands.innerHTML = hands;
     }else if (response.caption) {
-        var parent = document.getElementById('captions');
-        var text = document.createElement('p');
-        text.innerHTML = response.caption;
-        parent.appendChild(text);
+        
     }else if (response.lower_hand) {
-        var parent = Array.from(document.getElementsByClassName('raised_hands'))[0];
-        var item = document.getElementById(`hand_${response.id}`);
-        item.remove();
-        if (parent.children.length == 1) {
-            var element = Array.from(document.getElementsByClassName('hands_button'))[0];
-            element.style.setProperty('--raised_hands','none');
-        }
-        var hands = document.getElementById('hands').firstElementChild.children[2].children.length - 1;
-        all_hands.innerHTML = hands;
+        
     }else if (response.screen_sharing) {
-        post_message(`<i class = "fas fa-laptop"></i> ${response.username} is sharing screen`)
+        send_notification(response.username, `${response.username} is sharing screen`, response.profile_picture);
     }else if (response.user_joined) {
         if (response.name) {
-            if (response.user_token != CHANNEL) {
-                document.getElementById('options').children[3].remove();
+            profile_picture = response.profile_picture;
+            user_token = response.user_token;
+            if (user_token == CHANNEL) {
+                console.log(CHANNEL)
+                console.log(user_token)
+                create_whiteboard_room();
+            }else {
+                controls.children[1].remove();
             }
-
             if (document.getElementById(response.uid.toString()) == null) {
                 handleJoinedUser(response);
             }
@@ -569,17 +582,23 @@ let getSocketMessages = function(self){
         comment_holder.scrollTop = comment_holder.scrollHeight;
 
         if (chats === false) {
-            post_message(`<span>${response.name}</span> shared a file`);
+            send_notification(response.name, `${response.name} shared a file`, response.profile_picture);
         }
     }else if (response.auth) {
         joinAndDisplayLocalStream(response.token, response.id);
         my_id = response.id;
         token = response.token;
+    }else if (response.room_token) {
+        if (response.id != my_id) {
+            start_whiteboard(response.room_token, response.room_uid);
+        }
     }
 }
 
 let handle_camera = async (self) => {
+    var holder = document.getElementById(my_id.toString());
     var profile_picture = document.getElementById(`profile_picture_${my_id.toString()}`);
+    var video = holder.lastElementChild.firstElementChild;
     if (videoInputDevices.length > 0) {
         if (videoTrack.muted){
             profile_picture.style.display = "none";
@@ -587,13 +606,24 @@ let handle_camera = async (self) => {
             self.innerHTML = '<i class = "fas fa-video"></i>';
             self.setAttribute('class','control_buttons');
             self.setAttribute('data-description','disable');
-            post_message('<i class = "fas fa-video"></i> Your camera is enabled')
+
+            if (playing == false) {
+                videoTrack.play(holder);
+                playing == true;
+                /*video.setAttribute('style','height: 100%; width: auto; max-width: 100%;');*/
+            }
+            console.log(holder)
+            console.log(holder.innerHTML);
+            var item = holder.children[2];
+            item.style.backgroundColor = "white";
+
         }else {
             await videoTrack.setMuted(true);
             self.innerHTML = '<i class = "fas fa-video-slash"></i>';
             self.setAttribute('class','inactive');
             self.setAttribute('data-description','enable');
             profile_picture.style.display = "block";
+            video.style.display = "block";
         }
     }else {
         post_message('You have no webcam attached to your device');
@@ -612,7 +642,6 @@ let handle_audio = async (self) => {
             self.setAttribute('data-description','mute');
             microphone.style.color = 'blue';
             microphone.setAttribute('class','fas fa-microphone');
-            post_message('<i class = "fas fa-microphone"></i> Your microphone is unmuted');
         }else {
             await audioTrack.setMuted(true);
             self.innerHTML = '<i class = "fas fa-microphone-slash"></i>';
@@ -626,6 +655,23 @@ let handle_audio = async (self) => {
     }
 }
 
+function add_comment(self){
+    var input_box = self.parentElement.children[2];
+    if (input_box.value.length > 0){
+        var item = {'name':username,'message':input_box.value,
+            'profile_picture':profile_picture,'id':my_id};
+        socket.send(JSON.stringify(item));
+        input_box.value = "";
+    }
+}
+
+function add_comment_by_enter(keyboard_event){
+    if (keyboard_event.keyCode == 13){
+        var self = document.getElementById('livechat').lastElementChild.lastElementChild;
+        add_comment(self);
+    }
+}
+
 let screen_sharing = (self) => {
     AgoraRTC.createScreenVideoTrack({
         encoderConfig: '1080p_1',
@@ -636,7 +682,7 @@ let screen_sharing = (self) => {
         self.setAttribute('data-description','end');
         client.unpublish(videoTrack);
         client.publish(localScreenTrack);
-        socket.send(JSON.stringify({'screen_sharing':true,'username':username}));
+        socket.send(JSON.stringify({'screen_sharing':true,'username':username,'profile_picture':profile_picture}));
         localScreenTrack.on('track-ended', () => {
             client.unpublish(localScreenTrack);
             client.publish(videoTrack);
@@ -696,6 +742,7 @@ let start_recording = (resource_id) => {
         }).then(response => {
         return response.json().then(data => {
             sid = data.sid;
+            send_notification('Meeting recording', 'Meeting recording has started', null);
         })
         })
 }
@@ -774,6 +821,7 @@ let query_record_status = () => {
 }
 
 let record_meeting = (self) => {
+    send_notification('Meeting recording', 'Preparing to record meeting');
     get_resource_id();
     post_message('Preparing to record meeting');
     self.innerHTML = '<i class = "fas fa-stop"></i> End recording';
@@ -786,8 +834,44 @@ let end_recording = (self) => {
     self.setAttribute('onclick','record_meeting(this)');
   }
 
+let open_classroom = (self) => {
+    document.getElementById('meeting_info').style.display = "none";
+    document.getElementById('whiteboard_container').style.display = "none";
+    var tools = document.getElementById('meeting_tools');
+    Array.from(tools.children).forEach((item) => {
+        item.style.borderBottom = "none";
+    })
+    self.style.borderBottom = "2px solid rgba(0,0,200,0.6)";
+}
+
+function copy_link(self){
+    self.innerHTML = '<i class = "fas fa-copy"></i>';
+    var link = self.parentElement.firstElementChild.value;
+    navigator.clipboard.writeText(link);
+    setTimeout(() => {
+        self.innerHTML = '<i class = "far fa-copy"></i>';
+    }, 2000)
+}
+
 let open_whiteboard = (self) => {
-    window.open(`/whiteboard/${CHANNEL}`,'_blank','');
+    var tools = document.getElementById('meeting_tools');
+    Array.from(tools.children).forEach((item) => {
+        item.style.borderBottom = "none";
+    })
+
+    document.getElementById('meeting_info').style.display = "none";
+    document.getElementById('whiteboard_container').style.display = "block";
+    self.style.borderBottom = "2px solid rgba(0,0,200,0.6)";
+}
+
+let open_meet_info = (self) => {
+    var tools = document.getElementById('meeting_tools');
+    Array.from(tools.children).forEach((item) => {
+        item.style.borderBottom = "none";
+    })
+    document.getElementById('whiteboard_container').style.display = "none";
+    document.getElementById('meeting_info').style.display = "flex";
+    self.style.borderBottom = "2px solid rgba(0,0,200,0.6)";
 }
 
 let renew_client_token = () => {
@@ -829,36 +913,14 @@ let search_user = (self) => {
 }
 
 function open_chats(){
-    var options = document.getElementById('options');
-    var main = document.getElementById('main');
-    var comments = document.getElementById('comments').parentElement;
-    var grid_value = window.getComputedStyle(main).getPropertyValue('grid-template-columns');
-    var display_value = window.getComputedStyle(comments).getPropertyValue('display');
-
-    options.style.display = "none";
-
-    if (display_value == 'flex'){
-        comments.style.display = 'none';
-        self.innerHTML = "<i class = 'far fa-comments'></i>";
-        if (grid_value != 'auto'){
-            main.style.gridTemplateColumns = 'auto';
-        }
-        chats = false
-    }else {
-        var button = document.getElementById('comments').firstElementChild;
-        var button_display = window.getComputedStyle(button).getPropertyValue('visibility');
-        
-            main.style.gridTemplateColumns = 'auto 340px';
-        
-        comments.style.display = 'flex';
-        chats = true;
-    }
+    chats = true;
+    document.getElementById('livechat').style.display = "block";
 }
 
 let captions = async (self) => {
     self.innerHTML = '<i class = "fas fa-closed-captioning"></i>';
     self.setAttribute('onclick','mute_captions(this)');
-    post_message('Subtitles have been turned on');
+    post_message('<i class = "far fa-closed-captioning"></i> Auto generated subtitles have been turned on');
 }
 
 let mute_captions = async (self) => {
@@ -880,7 +942,7 @@ let show_qrcode = () => {
 let raise_hand = (self) => {
     self.innerHTML = "<i class = 'fas fa-hand-paper'></i>";
     self.setAttribute('onclick','lower_hand(this)');
-    socket.send(JSON.stringify({'raise_hand':true,'username':username,'id':my_id}));
+    socket.send(JSON.stringify({'raise_hand':true,'username':username,'id':my_id,'profile_picture':profile_picture}));
 }
 
 let lower_hand = (self) => {
@@ -902,32 +964,17 @@ function get_link(self){
     document.getElementById('meeting_link').style.display = "flex";
 }
 
-function close_comments(self){
-    self.parentElement.parentElement.style.display = 'none';
-    var main = document.getElementById('main');
-    main.style.gridTemplateColumns = "auto";
+function ExtendMeeting() {
+    var e = 'v';
+}
+
+function Cancel(self) {
+    self.parentElement.parentElement.style.display = "none";
+}
+
+function close_comments(){
+    document.getElementById('livechat').style.display = "none";
     chats = false;
-}
-
-function add_comment(self){
-    var input_box = self.parentElement.children[2];
-    if (input_box.value.length > 0){
-        var item = {'name':username,'message':input_box.value,
-            'profile_picture':profile_picture,'id':my_id};
-        socket.send(JSON.stringify(item));
-        input_box.value = "";
-    }
-}
-
-function add_comment_by_enter(keyboard_event){
-    if (keyboard_event.keyCode == 13){
-        var self = document.getElementById('comments').lastElementChild.lastElementChild;
-        add_comment(self);
-    }
-}
-
-function UploadedFiles(){
-    window.open(`/files/${CHANNEL}`,'_blank');
 }
 
 let start_meeting = (self) => {
@@ -943,18 +990,156 @@ function get_views(){
     document.getElementById('viewers').style.display = "flex";
 }
 
-function copy_link(self){
-    var parent = self.parentElement.parentElement;
-    var link = self.parentElement.children[2].value;
-    navigator.clipboard.writeText(link);
-    self.innerHTML = "<i class = 'fas fa-copy'></i> link copied";
-    setTimeout(() => {
-        parent.style.display = "none";
-        self.innerHTML = "<i class = 'far fa-copy'></i> Copy link";
-    },800)
-}
-
 window.addEventListener('beforeunload',() => {
+    audioTrack.stop();
+    videoTrack.stop();
     socket.close();
     client.leave();
 });
+
+let start_whiteboard = (room_token, room_uid) => {
+    var whiteWebSdk = new WhiteWebSdk({
+        appIdentifier: "kxGEgDNcEe2cCXezkLqgEg/Gf-OOdcaZPZ-pg",
+        region: "us-sv",
+      })
+
+        var item = {'room_token':room_token,'room_uid':room_uid, 'id':my_id};
+        socket.send(JSON.stringify(item));
+      
+      var joinRoomParams = {
+        uuid: room_uid,
+        uid: my_id.toString(),
+        roomToken: room_token, 
+      };
+      
+      whiteWebSdk.joinRoom(joinRoomParams).then(function(whiteboard_room) {
+        whiteboard_room.bindHtmlElement(document.getElementById("whiteboard"));
+        room = whiteboard_room;
+        room.setWritable(true);
+
+      }).catch(function(err) {
+          console.error(err);
+      });
+ }
+ 
+ let generate_room_token = (room_uid) => {
+    fetch(`https://api.netless.link/v5/tokens/rooms/${room_uid}`,{
+        method: 'POST',
+        headers:{
+            'Content-Type': 'application/json',
+            'region':'us-sv',
+            'token':'NETLESSSDK_YWs9UHI2SjR2T3RHUlBCai1fMSZub25jZT0yNTYwMTIzMC0zYjdjLTExZWQtODE5MC02ZDgwYzBkMGU1YmEmcm9sZT0wJnNpZz04NzdhZmY1YWE0YTUxYjczNjEzYTVlMjgzYmY3NDFhNTQyYTJiZTU5MjkyZGM2NTY4Yjg5NDJiMzYxNzBlMWY0'
+        },
+        body: JSON.stringify({'lifespan':3600000,"role":"admin"})
+        }).then(response => {
+        return response.json().then(data => {
+            start_whiteboard(data, room_uid);
+
+            fetch(window.location,{
+                method: 'POST',
+                headers:{
+                    'Content-Type': 'application/json',
+                    "X-CSRFToken": getCookie('csrftoken'),
+                    'X-Requested-With':'XMLHttpRequest'
+                },
+                body: JSON.stringify({'room_token':data,'room_uuid':room_uid})
+                })
+            })
+      })
+  }
+
+  let create_whiteboard_room = () => {
+    fetch('https://api.netless.link/v5/rooms',{
+        method: 'POST',
+        headers:{
+            'Content-Type': 'application/json',
+            'region':'us-sv',
+            'token':'NETLESSSDK_YWs9UHI2SjR2T3RHUlBCai1fMSZub25jZT0yNTYwMTIzMC0zYjdjLTExZWQtODE5MC02ZDgwYzBkMGU1YmEmcm9sZT0wJnNpZz04NzdhZmY1YWE0YTUxYjczNjEzYTVlMjgzYmY3NDFhNTQyYTJiZTU5MjkyZGM2NTY4Yjg5NDJiMzYxNzBlMWY0'
+        },
+        body: JSON.stringify({
+          'isRecord': false
+        })
+        }).then(response => {
+        return response.json().then(data => {
+            generate_room_token(data.uuid);
+        })
+      })
+  }
+
+/*
+if (CHANNEL != user_token) {
+    fetch(`/whiteboardDetails/?room_name=${meeting_token}`,{
+        method: 'GET'
+    }).then((response) => {
+        return response.json().then((data) => {
+            console.log(data);
+            start_whiteboard(data.room_token, data.room_uuid);
+        })
+    })
+}else {
+    create_whiteboard_room();
+}
+
+*/
+
+let clicker = () => {
+    room.setMemberState(
+        {currentApplianceName: 'clicker',
+         shapeType: 'pentagram',
+         strokeColor: [255,182,200],
+         strokeWidth: 12,
+         textSize: 40,});
+}
+
+let eraser = () => {
+  room.setMemberState(
+      {currentApplianceName: 'eraser',
+       shapeType: 'pentagram',
+       strokeColor: [255,182,200],
+       strokeWidth: 12,
+       textSize: 40,});
+}
+
+let text = () => {
+  room.setMemberState(
+    {currentApplianceName: 'text',
+     shapeType: 'pentagram',
+     strokeColor: [255,182,200],
+     strokeWidth: 12,
+     textSize: 40,});
+}
+
+var pen = () => {
+  room.setMemberState(
+      {currentApplianceName: 'pencil',
+       shapeType: 'pentagram',
+       strokeColor: [0,0,0],
+       strokeWidth: 6,
+       textSize: 40,});
+}
+
+let hand = () => {
+  room.setMemberState(
+      {currentApplianceName: 'hand',
+       shapeType: 'pentagram',
+       strokeColor: [255,182,200],
+       strokeWidth: 12,
+       textSize: 40,});
+}
+
+let redo = () => {
+  room.redo();
+}
+
+let undo = () => {
+    room.undo()
+}
+
+let clearBoard = () => {
+    room.cleanCurrentScene();
+}
+
+
+let upload_image = () => {
+    document.getElementById('photo').click();
+}
