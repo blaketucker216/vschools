@@ -1,54 +1,56 @@
-if (navigator.mediaDevices.getDisplayMedia == undefined){controls.children[6].remove();};
+if (navigator.mediaDevices.getDisplayMedia == undefined){document.getElementById('controls').children[3].remove()};
 var my_id;
 const username = document.getElementById('main').dataset.username;
 var notifications = document.getElementById('notifications');
 var container = document.getElementById('container');
 const APP_ID = '0eb3e08e01364927854ee79b9e513819';
 var authorization = document.getElementById('controls').dataset.authorization;
-var CHANNEL = document.getElementById('options').dataset.channel;
+var CHANNEL = window.location.pathname.split('/')[2]
 var connection_protocol;
 var profile_picture = document.getElementById('controls').dataset.profile_picture;
 var all_hands = document.getElementById('all_hands');
 var chats = false;
 var set_captions = false;
-var connection; 
+var connection;
 var resource_id_value;
 var sid;
 var time_string;
 var token;
 var socket;
-var playing = false;
+var video_track_playing = false;
+var audio_track_playing = false;
 var time_limit;
 var room;
 var user_token;
+var whiteboard;
 var all_users = 0;
+var recording = false;
+
 
 var file_types = ['audio/mpeg','audio/wav','application/pdf','image/jpeg','image/png','video/mp4',
                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
 
-var send_notification = (title, body, icon) => {
-    var notification = new Notification(title,{body:body,icon:icon});
-    if (Notification.permission === "granted") {
-        return notification;
-    }else if (Notification.permission !== "granted") {
-        Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-                return notification;
-            }
-        })
-    }
-}
+var send_notification = (title, body) => {
+    var notification = document.getElementById('notification');
+    var message = `<span>${title}</span> ${body}`;
+    notification.innerHTML = message;
+    notification.setAttribute('data-message',JSON.stringify(message));
+    notification.style.display = "block";
 
-/*function post_message(str) {
-    var text = document.createElement('p');
-    text.innerHTML = str;
-    notifications.prepend(text);
-    notifications.scrollTop = notifications.scrollHeight;
-    text.style.opacity = "1";
-    setTimeout(() => {text.style.opacity = "0";}, 5000);
-    setTimeout(() => {text.style.display = "none";}, 6000);
-}*/
+    setTimeout(() => {
+        notification.style.opacity = '1';
+    }, 1300)
+
+    setTimeout(() => {
+        if (notification.dataset.message == JSON.stringify(message)) {
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                notification.style.display = "none";
+            }, 1000)
+        }
+    } ,5000)
+}
 
 let getCookie = (name) => {
     let cookieValue = null;
@@ -65,28 +67,6 @@ let getCookie = (name) => {
     return cookieValue;
 }
 
-/*
-var qr_code_holder = document.getElementById('qrcode');
-qr_code_holder.firstElementChild.setAttribute('autofocus','');
-var qr_code = new QRCode(document.getElementById('qrcode').firstElementChild,{
-    text: document.getElementById('meeting_link').firstElementChild.children[2].value,
-    width: 128,
-    height: 128
-});
-
-
-qr_code_holder.addEventListener('mousedown',() => {
-    qr_code_holder.style.display = "none";
-})
-
-document.getElementById('options').addEventListener('mouseup',() => {
-    document.getElementById('options').style.display = "none";
-})
-
-var element = Array.from(document.getElementsByClassName('hands_button'))[0];
-element.style.setProperty('--raised_hands','none');
-
-*/
 
 if (window.location.protocol == 'https:'){
     connection_protocol = 'wss';
@@ -104,7 +84,7 @@ AgoraRTC.getCameras().then((devices) => {
         var button = document.getElementById('controls').firstElementChild;
         button.innerHTML = '<i class = "fas fa-video-slash"></i>';
         button.setAttribute('class','inactive');
-        button.setAttribute('data-description','enable');
+        button.setAttribute('data-name','enable');
     }
 })
 
@@ -114,7 +94,7 @@ AgoraRTC.getMicrophones().then((devices) => {
         var button = document.getElementById('controls').children[1];
         button.innerHTML = '<i class = "fas fa-microphone-slash"></i>';
         button.setAttribute('class','inactive');
-        button.setAttribute('data-description','unmute');
+        button.setAttribute('data-name','unmute');
     }
 })
 
@@ -260,7 +240,10 @@ let handleJoinedUser = (item) => {
     holder.setAttribute('id',item.uid.toString());
     holder.setAttribute('class','holder');
     holder.setAttribute('ondblclick','full_screen(this)');
-    document.getElementById('hosts').appendChild(holder);
+    document.getElementById('hosts').prepend(holder);
+
+    all_users += 1
+    document.getElementById('meeting_tools').firstElementChild.innerHTML = `classroom (${all_users})`;
 
     holder.appendChild(name);
     holder.appendChild(profile_picture);
@@ -282,11 +265,11 @@ let handleJoinedUser = (item) => {
     }
 
     Array.from(document.getElementsByClassName('holder')).forEach((item) => {
-        item.style.width = "300px";
-        item.style.height = "300px";
+        item.style.width = "260px";
+        item.style.height = "260px";
     })
 
-    var target_item = `
+    /*var target_item = `
         <div id = 'participant_${item.uid}'>
             <img src = "${item.profile_picture}"/>
             <p>${item.name}</p>
@@ -294,7 +277,7 @@ let handleJoinedUser = (item) => {
     `
 
     var parent = document.getElementById('meeting_info').firstElementChild.children[2];
-    parent.innerHTML += target_item;
+    parent.innerHTML += target_item;*/
 }
 
 function view_users() {
@@ -304,7 +287,6 @@ function view_users() {
 let handleNewUser = async (user, mediaType) => {
     await client.subscribe(user, mediaType);
     var holder = document.getElementById(user.uid.toString());
-    console.log(holder);
     if (mediaType === 'video'){
         user.videoTrack.play(holder);
         var player = holder.lastElementChild;
@@ -331,10 +313,6 @@ let handleNewUser = async (user, mediaType) => {
     Array.from(holder.children).forEach((item) => {
         item.style.backgroundColor = "rgba(198, 198, 198, 0.102";
     })
-
-    all_users += 1
-
-    document.getElementById('all_users').setAttribute('data-name',all_users.toString());
 }
 
 let handleUserLeft = async (user) => {
@@ -342,14 +320,21 @@ let handleUserLeft = async (user) => {
     document.getElementById(`participant_${user.uid.toString()}`).remove();
 
     all_users -= 1
-    document.getElementById('all_users').setAttribute('data-name',all_users.toString());
+    document.getElementById('meeting_tools').firstElementChild.innerHTML = `classroom (${all_users})`;
 }
 
 let leaveAndRemoveLocalStream = async () => {
     socket.close();
     videoTrack.stop();
+    audioTrack.stop();
     videoTrack.close();
+    audioTrack.close()
     client.leave();
+
+    if (recording == true) {
+        stop_recording();
+    }
+
     window.open('/','_self');
 }
 
@@ -460,35 +445,23 @@ let getSocketMessages = function(self){
         comment_holder.scrollTop = comment_holder.scrollHeight;
 
         if (chats === false) {
-            send_notification(response.name, response.message, response.profile_picture);
+            send_notification(response.name, response.message);
         }
     }else if (response.raise_hand) {
-        send_notification(response.username,`${response.username} is raising a hand`,response.profile_picture);
+        send_notification(`<i class = "fas fa-hand-paper"></i> ${response.username}`,'is raising a hand');
 
-        var parent = Array.from(document.getElementsByClassName('raised_hands'))[0];
-        var name = document.createElement('p');
-        name.setAttribute('id',`hand_${response.id}`)
-        name.innerHTML = `<i class = "fas fa-hand-paper"></i> ${response.username}`;
-        parent.appendChild(name);
-        var hands = document.getElementById('hands').firstElementChild.children[2].children.length - 1;
-        all_hands.innerHTML = hands;
+        var item = document.createElement('i');
+        item.setAttribute('class','fas fa-hand')
     }else if (response.caption) {
         
     }else if (response.lower_hand) {
         
     }else if (response.screen_sharing) {
-        send_notification(response.username, `${response.username} is sharing screen`, response.profile_picture);
+        send_notification(response.username, 'is sharing screen');
     }else if (response.user_joined) {
         if (response.name) {
             profile_picture = response.profile_picture;
-            user_token = response.user_token;
-            if (user_token == CHANNEL) {
-                console.log(CHANNEL)
-                console.log(user_token)
-                create_whiteboard_room();
-            }else {
-                controls.children[1].remove();
-            }
+            
             if (document.getElementById(response.uid.toString()) == null) {
                 handleJoinedUser(response);
             }
@@ -582,15 +555,20 @@ let getSocketMessages = function(self){
         comment_holder.scrollTop = comment_holder.scrollHeight;
 
         if (chats === false) {
-            send_notification(response.name, `${response.name} shared a file`, response.profile_picture);
+            send_notification(response.name, 'shared a file');
         }
     }else if (response.auth) {
         joinAndDisplayLocalStream(response.token, response.id);
-        my_id = response.id;
+        my_id = response.id; 
         token = response.token;
-    }else if (response.room_token) {
-        if (response.id != my_id) {
-            start_whiteboard(response.room_token, response.room_uid);
+
+        console.log(response)
+        if (response.user_token) {
+            create_whiteboard_room();
+        }else {
+            getCredentials();
+            var button = document.getElementById('meeting_info').firstElementChild.lastElementChild;
+            button.remove();
         }
     }
 }
@@ -602,18 +580,19 @@ let handle_camera = async (self) => {
     if (videoInputDevices.length > 0) {
         if (videoTrack.muted){
             profile_picture.style.display = "none";
-            await videoTrack.setMuted(false);
             self.innerHTML = '<i class = "fas fa-video"></i>';
             self.setAttribute('class','control_buttons');
-            self.setAttribute('data-description','disable');
+            self.setAttribute('data-name','disable');
 
-            if (playing == false) {
+            if (video_track_playing == false) {
                 videoTrack.play(holder);
-                playing == true;
+                video_track_playing == true;
+                client.publish(videoTrack);
                 /*video.setAttribute('style','height: 100%; width: auto; max-width: 100%;');*/
             }
-            console.log(holder)
-            console.log(holder.innerHTML);
+
+            await videoTrack.setMuted(false);
+
             var item = holder.children[2];
             item.style.backgroundColor = "white";
 
@@ -621,7 +600,7 @@ let handle_camera = async (self) => {
             await videoTrack.setMuted(true);
             self.innerHTML = '<i class = "fas fa-video-slash"></i>';
             self.setAttribute('class','inactive');
-            self.setAttribute('data-description','enable');
+            self.setAttribute('data-name','enable');
             profile_picture.style.display = "block";
             video.style.display = "block";
         }
@@ -639,14 +618,19 @@ let handle_audio = async (self) => {
             await audioTrack.setMuted(false);
             self.innerHTML = '<i class = "fas fa-microphone"></i>';
             self.setAttribute('class','control_buttons');
-            self.setAttribute('data-description','mute');
+            self.setAttribute('data-name','mute');
             microphone.style.color = 'blue';
             microphone.setAttribute('class','fas fa-microphone');
+
+            if (audio_track_playing == false) {
+                audio_track_playing == true;
+                client.publish(audioTrack);
+            }
         }else {
             await audioTrack.setMuted(true);
             self.innerHTML = '<i class = "fas fa-microphone-slash"></i>';
             self.setAttribute('class','inactive');
-            self.setAttribute('data-description','unmute');
+            self.setAttribute('data-name','unmute');
             microphone.style.color = 'red';
             microphone.setAttribute('class','fas fa-microphone-slash');
         }
@@ -679,7 +663,7 @@ let screen_sharing = (self) => {
         screenSourceType: 'screen',
     }).then(localScreenTrack => {
         self.setAttribute('class','inactive');
-        self.setAttribute('data-description','end');
+        self.setAttribute('data-name','end');
         client.unpublish(videoTrack);
         client.publish(localScreenTrack);
         socket.send(JSON.stringify({'screen_sharing':true,'username':username,'profile_picture':profile_picture}));
@@ -687,7 +671,7 @@ let screen_sharing = (self) => {
             client.unpublish(localScreenTrack);
             client.publish(videoTrack);
             self.setAttribute('class','control_buttons');
-            self.setAttribute('data-description','screen');
+            self.setAttribute('data-name','screen');
         })
     })
 }
@@ -711,7 +695,7 @@ let start_recording = (resource_id) => {
                             "serviceName": "web_recorder_service",
                             "errorHandlePolicy": "error_abort",
                             "serviceParam": {
-                                "url": document.getElementById('meeting_link').firstElementChild.children[2].value,
+                                "url": `https://${window.location.host}/meet/${CHANNEL}`,
                                 "audioProfile": 0,
                                 "videoWidth": 1280,
                                 "videoHeight": 720,
@@ -742,12 +726,18 @@ let start_recording = (resource_id) => {
         }).then(response => {
         return response.json().then(data => {
             sid = data.sid;
-            send_notification('Meeting recording', 'Meeting recording has started', null);
-        })
+            send_notification('Meeting recording', 'has started');
+            recording = true;
+            })
         })
 }
 
-let get_resource_id = () => {
+let get_resource_id = (self) => {
+    self.innerHTML = '<i class = "fas fa-record-vinyl"></i> Stop recording';
+    self.style.color = "rgba(255, 0, 0, 0.838)";
+    self.setAttribute('onclick','stop_recording()');
+    console.log(CHANNEL)
+    console.log(my_id.toString())
     fetch(`https://api.agora.io/v1/apps/${APP_ID}/cloud_recording/acquire`,{
         method: 'POST',
         headers:{
@@ -766,6 +756,7 @@ let get_resource_id = () => {
         }).then(response => {
         return response.json().then(data => {
             resource_id_value = data.resourceId;
+            console.log(data);
             start_recording(data.resourceId);
         })
         })
@@ -784,26 +775,27 @@ let stop_recording = () => {
           "clientRequest": {}
         })
         }).then(response => {
-        return response.json().then(data => {
-            var mp4_file = `https://vschools-file-bucket.s3.amazonaws.com/media/${data.sid}_${CHANNEL}_0.mp4`;
+            recording = false;
+            return response.json().then(data => {
+                var mp4_file = `https://vschools-file-bucket.s3.amazonaws.com/media/${data.sid}_${CHANNEL}_0.mp4`;
 
-            var form = new FormData();
-            form.append("video_file_name",mp4_file);
-    
-            var xhr = new XMLHttpRequest();
+                var form = new FormData();
+                form.append("video_file_name",mp4_file);
+        
+                var xhr = new XMLHttpRequest();
 
-            xhr.onreadystatechange = () => {
-            if (xhr.readyState == XMLHttpRequest.DONE) {
-                    console.log('meeting recorded successfully');
+                xhr.onreadystatechange = () => {
+                if (xhr.readyState == XMLHttpRequest.DONE) {
+                        console.log('meeting recorded successfully');
+                    }
                 }
-            }
 
-            xhr.open('POST',window.location);
-            xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
-            xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
-            xhr.send(form);
+                xhr.open('POST',window.location);
+                xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+                xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
+                xhr.send(form);
+            })
         })
-      })
   }
 
 let query_record_status = () => {
@@ -821,11 +813,9 @@ let query_record_status = () => {
 }
 
 let record_meeting = (self) => {
-    send_notification('Meeting recording', 'Preparing to record meeting');
     get_resource_id();
-    post_message('Preparing to record meeting');
-    self.innerHTML = '<i class = "fas fa-stop"></i> End recording';
-    self.setAttribute('onclick','end_recording(this)');
+    document.getElementById('options').style.display = "none";
+    send_notification('Meeting recording', 'will start shortly');
   }
 
 let end_recording = (self) => {
@@ -865,12 +855,12 @@ let open_whiteboard = (self) => {
 }
 
 let open_meet_info = (self) => {
+    document.getElementById('whiteboard_container').style.display = "none";
+    document.getElementById('meeting_info').style.display = "flex";
     var tools = document.getElementById('meeting_tools');
     Array.from(tools.children).forEach((item) => {
         item.style.borderBottom = "none";
     })
-    document.getElementById('whiteboard_container').style.display = "none";
-    document.getElementById('meeting_info').style.display = "flex";
     self.style.borderBottom = "2px solid rgba(0,0,200,0.6)";
 }
 
@@ -942,12 +932,14 @@ let show_qrcode = () => {
 let raise_hand = (self) => {
     self.innerHTML = "<i class = 'fas fa-hand-paper'></i>";
     self.setAttribute('onclick','lower_hand(this)');
+    self.setAttribute('data-name','unraise');
     socket.send(JSON.stringify({'raise_hand':true,'username':username,'id':my_id,'profile_picture':profile_picture}));
 }
 
 let lower_hand = (self) => {
     self.innerHTML = "<i class = 'far fa-hand-paper'></i>";
     self.setAttribute('onclick','raise_hand(this)');
+    self.setAttribute('data-name','raise');
     socket.send(JSON.stringify({'lower_hand':true,'username':username,'id':my_id}));
 }
 
@@ -962,10 +954,6 @@ function close_options(){
 function get_link(self){
     document.getElementById('options').style.display = "none";
     document.getElementById('meeting_link').style.display = "flex";
-}
-
-function ExtendMeeting() {
-    var e = 'v';
 }
 
 function Cancel(self) {
@@ -986,15 +974,8 @@ function close_items(self){
     self.parentElement.parentElement.style.display = "none";
 }
 
-function get_views(){
-    document.getElementById('viewers').style.display = "flex";
-}
-
 window.addEventListener('beforeunload',() => {
-    audioTrack.stop();
-    videoTrack.stop();
-    socket.close();
-    client.leave();
+    leaveAndRemoveLocalStream();
 });
 
 let start_whiteboard = (room_token, room_uid) => {
@@ -1002,9 +983,6 @@ let start_whiteboard = (room_token, room_uid) => {
         appIdentifier: "kxGEgDNcEe2cCXezkLqgEg/Gf-OOdcaZPZ-pg",
         region: "us-sv",
       })
-
-        var item = {'room_token':room_token,'room_uid':room_uid, 'id':my_id};
-        socket.send(JSON.stringify(item));
       
       var joinRoomParams = {
         uuid: room_uid,
@@ -1034,15 +1012,14 @@ let start_whiteboard = (room_token, room_uid) => {
         }).then(response => {
         return response.json().then(data => {
             start_whiteboard(data, room_uid);
-
-            fetch(window.location,{
+            fetch('/changeWhiteboardDetails/',{
                 method: 'POST',
                 headers:{
                     'Content-Type': 'application/json',
                     "X-CSRFToken": getCookie('csrftoken'),
                     'X-Requested-With':'XMLHttpRequest'
                 },
-                body: JSON.stringify({'room_token':data,'room_uuid':room_uid})
+                body: JSON.stringify({'room_token':data,'room_uuid':room_uid,'room_id':CHANNEL})
                 })
             })
       })
@@ -1066,21 +1043,15 @@ let start_whiteboard = (room_token, room_uid) => {
       })
   }
 
-/*
-if (CHANNEL != user_token) {
-    fetch(`/whiteboardDetails/?room_name=${meeting_token}`,{
+let getCredentials = () => {
+    fetch(`/whiteboardDetails/?room_name=${CHANNEL}`,{
         method: 'GET'
     }).then((response) => {
         return response.json().then((data) => {
-            console.log(data);
-            start_whiteboard(data.room_token, data.room_uuid);
+            start_whiteboard(data.room_token,data.room_uuid)
         })
     })
-}else {
-    create_whiteboard_room();
 }
-
-*/
 
 let clicker = () => {
     room.setMemberState(

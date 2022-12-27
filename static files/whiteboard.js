@@ -1,11 +1,10 @@
 var room;
 
-var notifier = document.getElementById('preloader_container');
-
 var user_token = document.getElementById('navbar').dataset.user_token;
 var meeting_token = document.getElementById('whiteboard').dataset.meeting_token;
 
 let open_whiteboard = (room_token, room_uid) => {
+    console.log('opened board')
     var whiteWebSdk = new WhiteWebSdk({
         appIdentifier: "kxGEgDNcEe2cCXezkLqgEg/Gf-OOdcaZPZ-pg",
         region: "us-sv",
@@ -13,7 +12,7 @@ let open_whiteboard = (room_token, room_uid) => {
       
       var joinRoomParams = {
         uuid: room_uid,
-        uid: document.getElementById('navbar').dataset.id.toString(),
+        uid: my_id,
         roomToken: room_token, 
       };
       
@@ -146,21 +145,6 @@ let clearBoard = () => {
     room.cleanCurrentScene();
 }
 
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
 
 let upload_image = () => {
     document.getElementById('photo').click();
@@ -218,52 +202,4 @@ let uploadFile = (self) => {
         xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
         xhr.send(form);
     }
-}
-
-var start_file_conversion = (imageUrl) => {
-    fetch('https://api.netless.link/v5/projector/tasks',{
-        method: 'POST',
-        headers:{
-            'Content-Type': 'application/json',
-            'region':'us-sv',
-            'token':'NETLESSSDK_YWs9UHI2SjR2T3RHUlBCai1fMSZub25jZT0yNTYwMTIzMC0zYjdjLTExZWQtODE5MC02ZDgwYzBkMGU1YmEmcm9sZT0wJnNpZz04NzdhZmY1YWE0YTUxYjczNjEzYTVlMjgzYmY3NDFhNTQyYTJiZTU5MjkyZGM2NTY4Yjg5NDJiMzYxNzBlMWY0'
-        },
-        body: JSON.stringify({
-              "resource": imageUrl,
-                "type": 'dynamic',
-                "preview": true,
-        })
-        }).then(response => {
-        return response.json().then(data => {
-            //open_whiteboard(data, room_uid);
-            console.log(data);
-        })
-      })
-}
-
-var addScene = () => {
-    var all_scenes = room.entireScenes();
-    console.log(all_scenes);
-    var sceneNumber = all_scenes.length+1;
-    var sceneIndex = sceneNumber - 1;
-    var scenes = [{'name':`scene_${sceneNumber}`}]
-    room.putScenes('/',scenes)
-    room.setSceneIndex(sceneIndex)
-
-    var text_item = document.getElementById('scenes').children[1];
-    text_item.innerHTML = `${sceneNumber}/${sceneNumber}`;
-}
-
-var switchSceneForward = () => {
-    var sceneState = room;
-    console.log(sceneState);
-    var targetIndex = sceneState.index + 1;
-    room.setSceneIndex(targetIndex);
-}
-
-var switchSceneBackward = () => {
-    var sceneState = room.state.SceneState;
-    var targetIndex = sceneState.index - 1;
-    room.setSceneIndex(targetIndex);
-
 }

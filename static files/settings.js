@@ -37,6 +37,10 @@ function getCookie(name) {
     return cookieValue;
 }
 
+function cancel() {
+    document.getElementById('cropper_holder').style.display = "none";
+}
+
 function crop(){
     image_cropper.getCroppedCanvas().toBlob((blob) => {
         var form = new FormData();

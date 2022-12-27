@@ -11,24 +11,21 @@
     <body>
         <div id = "navbar">
             <h1>Agrogen</h1>
-        </div> 
+        </div>
+
+        <h2>Recorded meetings</h2>
 
         {% if files %}
+            <p>Review your recorded meetings here...</p>
             {% for item in files %}
                 <div class="container">
-                    <div class = "file_container">
-                        <i class = "fas fa-file-video"></i>
-                        <div>
-                            <a target = "_blank" href = "{{ item.fileUrl }}">Meeting recording</a>
-                        </div>
-                    </div>
-                    <p>date of recording</p>
+                    <a target = "_blank" href = "{{ item.fileUrl }}"><i class = "fas fa-file-video"></i> Meeting recording <span>recorded on August 24th 2022</span></a>
                 </div>
             {% endfor %}
         {% else %}
             <div class = "no_recordings">
                 <img src = "{% static 'online_learning.svg' %}"/>
-                <p class = "last_text">Class you've recorded appear here</p>
+                <p class = "last_text">Meetings you've recorded appear here</p>
             </div>
         {% endif %}
 

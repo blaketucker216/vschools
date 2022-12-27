@@ -1,43 +1,71 @@
-if (navigator.mediaDevices.getDisplayMedia == undefined){controls.children[3].remove();};
+if (navigator.mediaDevices.getDisplayMedia == undefined){document.getElementById('controls').children[3].remove();};
+var my_id;
+const username = document.getElementById('main').dataset.username;
 var notifications = document.getElementById('notifications');
 var container = document.getElementById('container');
 const APP_ID = '0eb3e08e01364927854ee79b9e513819';
-var CHANNEL = document.getElementById('container').dataset.token;
-var token = document.getElementById('meeting_link').dataset.token;
-var UID = Number(document.getElementById('controls').dataset.id);
+var authorization = document.getElementById('controls').dataset.authorization;
+var CHANNEL = document.getElementById('options').dataset.channel;
 var connection_protocol;
-var profile_picture = '/media/no_profile_Pic.jpeg';
-let role = 'participant';
+var profile_picture = document.getElementById('controls').dataset.profile_picture;
 var all_hands = document.getElementById('all_hands');
 var chats = false;
+var set_captions = false;
+var connection;
+var resource_id_value;
+var sid;
+var time_string;
 var token;
+var socket;
+var video_track_playing = false;
+var audio_track_playing = false;
+var time_limit;
+var room;
+var user_token;
+var whiteboard;
+var all_users = 0;
 
-function post_message(str) {
-    var text = document.createElement('p');
-    text.innerHTML = str;
-    notifications.appendChild(text);
-    notifications.scrollTop = notifications.scrollHeight;
-    setTimeout(() => {text.style.opacity = "0"}, 5000);
+var file_types = ['audio/mpeg','audio/wav','application/pdf','image/jpeg','image/png','video/mp4',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+
+var send_notification = (title, body, icon) => {
+    var notification = new Notification(title,{body:body,icon:icon});
+    if (Notification.permission === "granted") {
+        return notification;
+    }else if (Notification.permission !== "granted") {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                return notification;
+            }
+        })
+    }
 }
 
-var qr_code_holder = document.getElementById('qrcode');
-qr_code_holder.firstElementChild.setAttribute('autofocus','');
-var qr_code = new QRCode(document.getElementById('qrcode').firstElementChild,{
-    text: document.getElementById('meeting_link').firstElementChild.children[2].value,
-    width: 128,
-    height: 128
-});
+/*function post_message(str) {
+    var text = document.createElement('p');
+    text.innerHTML = str;
+    notifications.prepend(text);
+    notifications.scrollTop = notifications.scrollHeight;
+    text.style.opacity = "1";
+    setTimeout(() => {text.style.opacity = "0";}, 5000);
+    setTimeout(() => {text.style.display = "none";}, 6000);
+}*/
 
-qr_code_holder.addEventListener('mousedown',() => {
-    qr_code_holder.style.display = "none";
-})
-
-document.getElementById('options').addEventListener('mouseup',() => {
-    document.getElementById('options').style.display = "none";
-})
-
-var element = Array.from(document.getElementsByClassName('hands_button'))[0];
-element.style.setProperty('--raised_hands','none');
+let getCookie = (name) => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== ''){
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')){
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 
 if (window.location.protocol == 'https:'){
     connection_protocol = 'wss';
@@ -46,14 +74,35 @@ if (window.location.protocol == 'https:'){
 }
 
 let websocket_url = `${connection_protocol}://${window.location.host}/meet/${CHANNEL}/`;
-var socket = new WebSocket(websocket_url);
+
 var client = AgoraRTC.createClient({mode:'rtc',codec:'vp8'});
+
+var videoInputDevices;
+var audioInputDevices;
+
+var videoTrack;
+var audioTrack;
+
+let createTracks = async () => {
+    socket = new WebSocket(websocket_url);
+    socket.addEventListener('message',getSocketMessages);
+}
+
+createTracks();
 
 let joinAndDisplayLocalStream = async (token, UID) => {
     client.on('user-published',handleNewUser);
 
     await client.join(APP_ID, CHANNEL, token, UID);
 
+    Array.from(document.getElementsByTagName('button')).forEach(item => {
+        if (item.hasAttribute('disabled')){
+            item.removeAttribute('disabled');
+        }
+    })
+
+    var loader = container.firstElementChild;
+ 
     client.on('token-privilege-will-expire',renew_client_token);
     client.on('token-privilege-did-expire',rejoin_session);
     client.on('user-left',handleUserLeft);
@@ -87,21 +136,15 @@ let handleJoinedUser = (item) => {
     holder.setAttribute('id',item.uid.toString());
     holder.setAttribute('class','holder');
     holder.setAttribute('ondblclick','full_screen(this)');
-    container.appendChild(holder);
+    document.getElementById('hosts').prepend(holder);
 
-    if (Array.from(document.getElementsByClassName('holder')).length > 1) {
-        container.style.gridTemplateColumns = "repeat(auto-fit, minmax(300px, 1fr))";
-        container.style.gridAutoRows = "300px";
-    }
+    all_users += 1
+    document.getElementById('meeting_tools').firstElementChild.innerHTML = `classroom (${all_users})`;
 
     holder.appendChild(name);
     holder.appendChild(profile_picture);
 
     var loader = container.firstElementChild;
-
-    if (loader.getAttribute('class') == "loader_holder"){
-        loader.remove();
-    }
 
     var player = holder.lastElementChild;
     
@@ -109,16 +152,31 @@ let handleJoinedUser = (item) => {
     player.style.flexDirection = "column";
     player.style.alignItems = "center";
     player.style.justifyItems = "center";
-    
-    var parent = Array.from(document.getElementsByClassName('user_holder'))[0];
 
-    var new_user = document.createElement('p');
-    new_user.setAttribute('id',`participant_${item.uid.toString()}`);
-    new_user.innerHTML = `<img src = '${item.profile_picture}'/>${item.name}`;
-    parent.appendChild(new_user);
+    var loader = container.firstElementChild;
 
-    var button  = document.getElementById('controls').children[2];
-    button.setAttribute('data-description',parent.children.length - 1);
+    if (loader.getAttribute('class') == "loader_holder"){
+        loader.remove();
+    }
+
+    Array.from(document.getElementsByClassName('holder')).forEach((item) => {
+        item.style.width = "260px";
+        item.style.height = "260px";
+    })
+
+    /*var target_item = `
+        <div id = 'participant_${item.uid}'>
+            <img src = "${item.profile_picture}"/>
+            <p>${item.name}</p>
+        </div>
+    `
+
+    var parent = document.getElementById('meeting_info').firstElementChild.children[2];
+    parent.innerHTML += target_item;*/
+}
+
+function view_users() {
+    document.getElementById('meeting_tools').lastElementChild.click();
 }
 
 let handleNewUser = async (user, mediaType) => {
@@ -146,22 +204,18 @@ let handleNewUser = async (user, mediaType) => {
         microphone.setAttribute('class','fas fa-microphone');
         microphone.style.color = "blue";
     }
+
+    Array.from(holder.children).forEach((item) => {
+        item.style.backgroundColor = "rgba(198, 198, 198, 0.102";
+    })
 }
 
 let handleUserLeft = async (user) => {
     document.getElementById(user.uid.toString()).remove();
-
-    if (Array.from(document.getElementsByClassName('holder')).length == 1){
-        container.style.gridTemplateColumns = "auto";
-        container.style.gridAutoRows = "auto";
-    }
-
     document.getElementById(`participant_${user.uid.toString()}`).remove();
 
-    var parent = Array.from(document.getElementsByClassName('user_holder'))[0];
-
-    var target_button = document.getElementById('controls').children[2];
-    target_button.setAttribute('data-description',parent.children.length - 1);
+    all_users -= 1
+    document.getElementById('meeting_tools').firstElementChild.innerHTML = `classroom (${all_users})`;
 }
 
 let leaveAndRemoveLocalStream = async () => {
@@ -176,6 +230,73 @@ function countWords(str) {
     const arr = str.split(' ');
     return arr.filter(word => word !== '').length;
   }
+
+function getImage() {
+    document.getElementById('photo').click();
+}
+
+function sendFile(self) {
+    if (self.files) {
+        var form = new FormData();
+        form.append("image",self.files[0]);
+        form.append("uid",my_id);
+        form.append("fileType",self.files[0].type);
+        form.append("fileName", self.files[0].name);
+
+        var xhr = new XMLHttpRequest();
+
+        /*xhr.upload.onloadstart = () => {
+            document.getElementById('uploadProgress').style.display = "flex";
+        }
+
+        xhr.upload.onloadend = () => {
+            document.getElementById('uploadProgress').style.display = "none";
+        }
+
+        var button = document.getElementById('progressContainer').lastElementChild;
+
+        button.addEventListener('click', () => {
+            xhr.abort();
+            button.innerHTML = "Upload cancelled";
+            setTimeout(() => {
+                document.getElementById('uploadProgress').style.display = "none";
+                button.innerHTML = "Cancel";
+            },10000)
+        })
+
+        xhr.upload.onprogress = (event) => {
+            var total = event.total;
+            var loaded = event.loaded;
+
+            var progressValue = (loaded / total) * 100;
+            var progressElement = document.getElementById('progressElement').firstElementChild;
+            progressElement.style.width = `${progressValue}%`;
+
+            var percentage = document.getElementById('progressContainer').children[2];
+            percentage.innerHTML = `${Math.trunc(progressValue)}%`;
+
+        }*/
+
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                var data = JSON.parse(xhr.responseText);
+                var fileUrl = data.fileUrl;
+                var item = {'fileUrl':fileUrl,'profile_picture':profile_picture,
+                    'id':my_id,'name':username,'fileType':self.files[0].type,'fileName':self.files[0].name};
+                socket.send(JSON.stringify(item));
+            }
+        }
+
+        if (file_types.includes(self.files[0].type)) {
+            xhr.open('POST',window.location);
+            xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+            xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
+            xhr.send(form);
+        }else {
+            post_message('<i class = "fas fa-exclamation-triangle"></i> Failed to send file');
+        }
+    }
+}
 
 let getCurrentTime = () => {
     var date = new Date();
@@ -195,7 +316,7 @@ let getCurrentTime = () => {
 
 let getSocketMessages = function(self){
     var response = JSON.parse(self.data);
-    var comment_holder = document.getElementById('comments').children[2];
+    var comment_holder = document.getElementById('livechat').children[1];
 
     if(response.message){
         var container = document.createElement('div');
@@ -212,40 +333,23 @@ let getSocketMessages = function(self){
         comment_holder.scrollTop = comment_holder.scrollHeight;
 
         if (chats === false) {
-            post_message(`<span>${response.name}</span> ${response.message}`)
+            send_notification(response.name, response.message, response.profile_picture);
         }
     }else if (response.raise_hand) {
-        var element = Array.from(document.getElementsByClassName('hands_button'))[0];
-        element.style.setProperty('--raised_hands','block');
+        send_notification(response.username,`${response.username} is raising a hand`,response.profile_picture);
 
-        post_message(`<i class = "fas fa-hand-paper"></i> ${response.username}`)
-
-        var parent = Array.from(document.getElementsByClassName('raised_hands'))[0];
-        var name = document.createElement('p');
-        name.setAttribute('id',`hand_${response.id}`)
-        name.innerHTML = `<i class = "fas fa-hand-paper"></i> ${response.username}`;
-        parent.appendChild(name);
-        var hands = document.getElementById('hands').firstElementChild.children[2].children.length - 1;
-        all_hands.innerHTML = hands;
+        var item = document.createElement('i');
+        item.setAttribute('class','fas fa-hand')
     }else if (response.caption) {
-        var parent = document.getElementById('captions');
-        var text = document.createElement('p');
-        text.innerHTML = response.caption;
-        parent.appendChild(text);
+        
     }else if (response.lower_hand) {
-        var parent = Array.from(document.getElementsByClassName('raised_hands'))[0];
-        var item = document.getElementById(`hand_${response.id}`);
-        item.remove();
-        if (parent.children.length == 1) {
-            var element = Array.from(document.getElementsByClassName('hands_button'))[0];
-            element.style.setProperty('--raised_hands','none');
-        }
-        var hands = document.getElementById('hands').firstElementChild.children[2].children.length - 1;
-        all_hands.innerHTML = hands;
+        
     }else if (response.screen_sharing) {
-        post_message(`<i class = "fas fa-laptop"></i> ${response.username} is sharing screen`)
+        send_notification(response.username, `${response.username} is sharing screen`, response.profile_picture);
     }else if (response.user_joined) {
         if (response.name) {
+            profile_picture = response.profile_picture;
+            
             if (document.getElementById(response.uid.toString()) == null) {
                 handleJoinedUser(response);
             }
@@ -254,8 +358,6 @@ let getSocketMessages = function(self){
         var container = document.createElement('div');
         var time = getCurrentTime();
         var container;
-
-        var file_types = ['audio/mpeg','audio/wav','application/pdf','image/jpeg','image/png','video/mp4']
 
         if (response.fileType == 'image/jpeg' || response.fileType == 'image/png') {
             var container = `
@@ -341,16 +443,66 @@ let getSocketMessages = function(self){
         comment_holder.scrollTop = comment_holder.scrollHeight;
 
         if (chats === false) {
-            post_message(`<span>${response.name}</span> shared a file`);
+            send_notification(response.name, `${response.name} shared a file`, response.profile_picture);
         }
     }else if (response.auth) {
         joinAndDisplayLocalStream(response.token, response.id);
-        my_id = response.id;
+        my_id = response.id; 
         token = response.token;
+
+        getCredentials();
     }
 }
 
-socket.addEventListener('message',getSocketMessages);
+let open_classroom = (self) => {
+    document.getElementById('meeting_info').style.display = "none";
+    document.getElementById('whiteboard_container').style.display = "none";
+    var tools = document.getElementById('meeting_tools');
+    Array.from(tools.children).forEach((item) => {
+        item.style.borderBottom = "none";
+    })
+    self.style.borderBottom = "2px solid rgba(0,0,200,0.6)";
+}
+
+function copy_link(self){
+    self.innerHTML = '<i class = "fas fa-copy"></i>';
+    var link = self.parentElement.firstElementChild.value;
+    navigator.clipboard.writeText(link);
+    setTimeout(() => {
+        self.innerHTML = '<i class = "far fa-copy"></i>';
+    }, 2000)
+}
+
+let open_whiteboard = (self) => {
+    var tools = document.getElementById('meeting_tools');
+    Array.from(tools.children).forEach((item) => {
+        item.style.borderBottom = "none";
+    })
+
+    document.getElementById('meeting_info').style.display = "none";
+    document.getElementById('whiteboard_container').style.display = "block";
+    self.style.borderBottom = "2px solid rgba(0,0,200,0.6)";
+}
+
+let open_meet_info = (self) => {
+    document.getElementById('whiteboard_container').style.display = "none";
+    document.getElementById('meeting_info').style.display = "flex";
+    var tools = document.getElementById('meeting_tools');
+    Array.from(tools.children).forEach((item) => {
+        item.style.borderBottom = "none";
+    })
+    self.style.borderBottom = "2px solid rgba(0,0,200,0.6)";
+}
+
+let renew_client_token = () => {
+    fetch(`/get_token/?channel=${CHANNEL}`,{
+        method: 'GET'
+    }).then(response => {
+        return response.json().then(data => {
+            client.renewToken(data.token);
+        })
+    })
+}
 
 let rejoin_session = () => {
     fetch(`/get_token/?channel=${CHANNEL}`,{
@@ -362,31 +514,59 @@ let rejoin_session = () => {
     })
 }
 
-function open_chats(){
-    var options = document.getElementById('options');
-    var main = document.getElementById('main');
-    var comments = document.getElementById('comments').parentElement;
-    var grid_value = window.getComputedStyle(main).getPropertyValue('grid-template-columns');
-    var display_value = window.getComputedStyle(comments).getPropertyValue('display');
+let full_screen = (self) => {
+    self.requestFullscreen()
+}
 
-    options.style.display = "none";
-
-    if (display_value == 'flex'){
-        comments.style.display = 'none';
-        self.innerHTML = "<i class = 'far fa-comments'></i>";
-        if (grid_value != 'auto'){
-            main.style.gridTemplateColumns = 'auto';
+let search_user = (self) => {
+    var input_value = self.value.toUpperCase();
+    var parent = Array.from(document.getElementsByClassName('user_holder'))[0];
+    Array.from(parent.children).forEach((item) => {
+        if (!item.hasAttribute('class')) {
+            if (!item.innerHTML.includes(input_value)) {
+                item.style.visibility = "hidden";
+            }else {
+                item.style.visibility = "unset";
+            }
         }
-        chats = false
-    }else {
-        var button = document.getElementById('comments').firstElementChild;
-        var button_display = window.getComputedStyle(button).getPropertyValue('visibility');
-        
-            main.style.gridTemplateColumns = 'auto 340px';
-        
-        comments.style.display = 'flex';
-        chats = true;
-    }
+    })
+}
+
+function open_chats(){
+    chats = true;
+    document.getElementById('options').style.display = "none";
+    document.getElementById('livechat').style.display = "block";
+}
+
+let captions = async (self) => {
+    self.innerHTML = '<i class = "fas fa-closed-captioning"></i>';
+    self.setAttribute('onclick','mute_captions(this)');
+    post_message('<i class = "far fa-closed-captioning"></i> Auto generated subtitles have been turned on');
+}
+
+let mute_captions = async (self) => {
+    self.innerHTML = '<i class = "far fa-closed-captioning"></i>';
+    self.setAttribute('onclick','captions(this)');
+    await connection.stopProcessing();
+}
+
+let show_hands = () => {
+    document.getElementById('options').style.display = "none";
+    document.getElementById('hands').style.display = "flex";
+}
+
+let raise_hand = (self) => {
+    self.innerHTML = "<i class = 'fas fa-hand-paper'></i>";
+    self.setAttribute('onclick','lower_hand(this)');
+    self.setAttribute('data-name','unraise');
+    socket.send(JSON.stringify({'raise_hand':true,'username':username,'id':my_id,'profile_picture':profile_picture}));
+}
+
+let lower_hand = (self) => {
+    self.innerHTML = "<i class = 'far fa-hand-paper'></i>";
+    self.setAttribute('onclick','raise_hand(this)');
+    self.setAttribute('data-name','raise');
+    socket.send(JSON.stringify({'lower_hand':true,'username':username,'id':my_id}));
 }
 
 function options(){
@@ -397,33 +577,56 @@ function close_options(){
     document.getElementById('options').style.display = "none";
 }
 
-function close_comments(self){
-    self.parentElement.parentElement.style.display = 'none';
-    var main = document.getElementById('main');
-    main.style.gridTemplateColumns = "auto";
+function get_link(self){
+    document.getElementById('options').style.display = "none";
+    document.getElementById('meeting_link').style.display = "flex";
+}
+
+function Cancel(self) {
+    self.parentElement.parentElement.style.display = "none";
+}
+
+function close_comments(){
+    document.getElementById('livechat').style.display = "none";
     chats = false;
 }
 
-let getCookie = (name) => {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== ''){
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')){
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+let start_meeting = (self) => {
+    self.style.display = "none";
+    joinAndDisplayLocalStream();
+}
+
+function close_items(self){
+    self.parentElement.parentElement.style.display = "none";
+}
+
+function get_views(){
+    document.getElementById('viewers').style.display = "flex";
 }
 
 window.addEventListener('beforeunload',() => {
     socket.close();
-    videoTrack.stop();
-    videoTrack.close();
     client.leave();
 });
 
-joinAndDisplayLocalStream();
+let start_whiteboard = (room_token, room_uid) => {
+    var whiteWebSdk = new WhiteWebSdk({
+        appIdentifier: "kxGEgDNcEe2cCXezkLqgEg/Gf-OOdcaZPZ-pg",
+        region: "us-sv",
+      })
+      
+      var joinRoomParams = {
+        uuid: room_uid,
+        uid: my_id.toString(),
+        roomToken: room_token, 
+      };
+      
+      whiteWebSdk.joinRoom(joinRoomParams).then(function(whiteboard_room) {
+        whiteboard_room.bindHtmlElement(document.getElementById("whiteboard"));
+        room = whiteboard_room;
+        room.setWritable(true);
+
+      }).catch(function(err) {
+          console.error(err);
+      });
+ }

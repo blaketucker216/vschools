@@ -10,7 +10,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <script src = "{% static 'login.js' %}" defer></script>
     </head>
-    <body>
+    <body oncontextmenu="return false">
         <div id = "navbar">
             <h1 style = "font-family: 'Brush Script MT', cursive;">Agrogen</h1>
         </div>
@@ -21,7 +21,7 @@
                     <form method = "POST" autocomplete="off" id = "form">
                         {% csrf_token %}
                         <div class = "holder">
-                            <i class="fas fa-user"></i>
+                            <i class="fas fa-envelope"></i>
                             <input type = "text" id = "username" placeholder="Enter username" name = "username" required/>
                         </div>
 
@@ -29,26 +29,26 @@
                             <i class = "fas fa-lock"></i>
                             <input type = "password" id = "password" placeholder="Enter password" name = "password" required/>
                         </div>
-                        <button type = "submit" onclick = "login(this)">LOG IN</button>
+                        <button class = "btn" type = "submit" onclick = "login(this)">LOG IN</button>
                     </form>
                     <p>live</p>
                 </div>
                 <div class = "divtwo">
-                    <a style = "margin-left: 25px;" href = "{% url 'sign_up' %}">Create account</a>
+                    <a style = "margin-left: 25px;" href = "/sign_up/">Create account</a>
                     <a style = "margin-right: 25px;" href = "{% url 'reset_password' %}">Forgot password</a>
                 </div>
             </div>
 
             <div class = "divthree">
-                <h2>Virtual learning environment...</h2>
+                <h2>Virtual learning platform</h2>
                 <p>
                     Learn from anywhere, get the best classroom experience from anywhere all over
-                    the globe at a location of your convenience
+                    the globe at a location of your convenience...
                 </p>
                 <img src = "{% static 'selfie.svg' %}"/>
-                <p class = "footer">Quality classrooms</p>
+                <p class = "footer">Quality meetings</p>
             </div>
-            <p class = "premium">virtual</p>
+            <p class = "premium">premium</p>
         </div>
 
         {% if messages %}

@@ -15,7 +15,7 @@
         <div id = "navbar">
             <h1>Agrogen</h1>
         </div>
- 
+
         <div class = "parent">
             <div class = "info_holder">
                 <div class = "info">
@@ -37,7 +37,6 @@
                     {% csrf_token %}
                     <input type = "text" placeholder = "Enter first name" name = "first_name" value = "{{ user.first_name }}" required/>
                     <input type = "text" placeholder = "Enter last name" name = "last_name" value = "{{ user.last_name }}" required/>
-                    <input type = "text" placeholder = "Enter last name" name = "last_name" value = "{{ user.email }}" required/>
                     <button type = "submit">Save changes</button>
                 </form>
             </div>
@@ -62,8 +61,8 @@
                     <img id = "picture"/>
                 </div>
                 <div id = "buttons">
-                    <button style = "margin-left: auto"><i class = "fas fa-times"></i></button>
-                    <button onclick = "crop()"><i class = "fas fa-check"></i></button>
+                    <button style = "margin-left: auto; color: red;" onclick = "cancel()"><i class = "fas fa-times"></i></button>
+                    <button onclick = "crop()" style = "color: green;"><i class = "fas fa-check"></i></button>
                 </div>
             </div>
         </div>

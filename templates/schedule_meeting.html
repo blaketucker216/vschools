@@ -6,50 +6,19 @@
         <title>Vschools | Scheduler</title>
         <link rel = "stylesheet" href = "{% static 'dark/schedule.css' %}"/>
         <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}"/>
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
         <script src = "{% static 'schedule.js' %}" type = "text/javascript" defer></script>
     </head>
     <body oncontextmenu = "return false">
         <div id = "navbar">
-            <h1>Schedule</h1>
+            <h1>Vschools</h1>
         </div>
-        <h2 class = "heading_one"><i class = "far fa-calendar"></i> Schedule your next meeting session</h2>
-        <div id = "container">
-        <div id = 'divone'>
-            <p>
-                This Schedule shall help your meeting participants to know the date of the next meeting
-                to help them catch up easily...
+        <div id = "divone">
+            <h2>Schedule your next meeting session</h2>
+            <p class = "header">Learn from anywhere, get the best classroom experience from anywhere all over
+                        the globe at a location of your convenience
             </p>
-            <form method = "POST" id = "form">
-                {% csrf_token %}
-                <textarea placeholder = "Enter session title...." required></textarea>
-                <input type = "date" placeholder = "Enter meeting date"/>
-            </form>
-        </div>
-
-        <div id = 'divtwo'>
-            <div class = "holder">
-                <h2><i class = "far fa-clock"></i> Meeting time</h2>
-                <p>Enter your password below, your password has to have atleast 8 characters and atmost 
-                    32 characters...
-                </p>
-                <form method = "POST" id = "poassword_form">
-                    {% csrf_token %}
-                    <input type = "text" onfocus = "get_start_time()" placeholder = "Meeting starting time" required/>
-                    <input type = "datetime-local" placeholder = "Meeting ending time" required/>
-                    <input type="text" name = "datetimes" placeholder = "Select meeting time" class="form-control js-daterangepicker-times" data-auto-apply="true">
-                    <button type = "submit">Submit changes</button>
-                </form>
-            </div>
-        </div>
-        </div>
-
-        <div id = 'divthree'>
-        <p class = "premium">scheduler</p>
+            <input type = "text" placeholder="Meeting title goes here..."/>
         </div>
     </body>
-</html>
+</html> 

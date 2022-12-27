@@ -7,58 +7,42 @@
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <title>Agrogen | Home</title>
         <link rel="shortcut icon" href="{% static 'selfie.svg' %}" type="image/svg"/>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
         <link id = "styles" rel = "stylesheet" href = "{% static 'dark/home.css' %}" type="text/css"/>
         <link rel = "stylesheet" href = "{% static 'fonts/css/all.min.css' %}" type="text/css"/>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
         <script src = "{% static 'home.js' %}" type = "text/javascript" defer></script>
     </head>
-    <body>
+    <body oncontextmenu="return false">
         <div id = "navbar">
             <h1 style = "font-family: 'Brush Script MT', cursive;">Agrogen</h1>
+            <button onclick = "options()"><i class = "fas fa-bars"></i></button>
             <img src = "{{ profile_picture.url }}"/>
         </div>
+        <div id = "options">
+            <button onclick = "settings()"><i class = "fas fa-user"></i> Your profile</button>
+            <button onclick = "recorded_meetings()"><i class = "fas fa-record-vinyl"></i> Recorded meetings</button>
+            <button onclick = "logout()" style = "border: none;"><i class = "fas fa-sign-out-alt"></i> Logout</button>
+        </div> 
         <div id = "container">
-            <div class = "divone">
-                <h2>Vritual learning platform.</h2>
-                <p>Learn from anywhere, get the best classroom experience from anywhere all over
-                    the globe at a location of your convenience
+            <div id = "divone">
+                <h2>Vritual learning platform</h2>
+                <p class = "header">Learn from anywhere, get the best classroom experience from anywhere all over
+                        the globe at a location of your convenience
                 </p>
-            </div>
-            <div class = "divone">
-                <h2>Join an ongoing meeting using a meeting passcode.</h2>
-                <p>Join an ongoing meeting session by entering the meeting passcode below.</p>
-                <form onsubmit = "join_meeting(event)" autocomplete = "off">
-                  <input type = "text" placeholder = "Enter meeting passcode" required/>       
-                  <button><i class = "fas fa-link"></i> Join meeting</button>
-                </form>
-            </div>
-            <div class = "divtwo">
-                <h2>Set up your camera and microphone before you join.</h2>
-                <p>Join an ongoing meeting session by entering the meeting passcode below.</p>
-                <label class="container">
-                    <p>Join with your camera enabled</p>
-                  <input type="checkbox" checked="checked">
-                  <span class="checkmark"></span>
-                </label>
-            </div>
-            <div class = "divtwo">
-             <div class="panel-group" id="accordion">
-              <div class="panel panel-default">
-                <div class="panel-heading">
-                  <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
-                    <i class = "fas fa-users"></i> Start instant meeting.</a>
-                  </h4>
+                <button onclick = "start_meeting(this)" class = "start"><i class = "fas fa-link"></i> Start a meeting</button>
+                <div class = "join">
+                    <form style = "flex-direction: row;" onsubmit = "join_meeting(event)">
+                        <input type = "text" oninput = "check_passcode(this)" onfocus="input_focus(this)" placeholder = "Enter meeting passcode" onblur = "input_blur(this)" required/>
+                        <button type = "submit">Join</button>
+                    </form>
                 </div>
-                <div id="collapse1" class="panel-collapse collapse in">
-                  <div class="panel-body">Start an instant meeting session and invite guests to join.
-                    <button style = "border: none; background: none; padding: 0; margin: 0;" data-user_token = "{{ user_token }}" onclick = "create_meeting(this)">Click here to start</button>
-                  </div>
-                </div>
-              </div>
-            </div> 
+                <p style = "font-size: 25px; color: grey; font-family: 'Brush Script MT', cursive; margin: 0; margin-top: 25px; align-self: center;">premium</p>
+            </div>
+            <div id = "divtwo">
+                <img src = "{% static 'selfie.svg' %}"/>
+                <p>Quality meetings</p>
+            </div>
         </div>
+        <p class = "footer"><i class = "far fa-copyright"></i> 2023 | Agrogen | All Rights Reserved.</p>
+        <p id = "notification">Meeting not found</p>
     </body>
 </html>

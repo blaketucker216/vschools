@@ -25,7 +25,6 @@ import uuid
 from agora_token_builder import RtcTokenBuilder
 import base64
 import http.client
-from background_task import background
 import boto3
 import os
 
@@ -47,7 +46,7 @@ def join_session(request):
     data = request.GET
     passcode = data['passcode']
     if any(Room.objects.filter(passcode=passcode)):
-        return JsonResponse({'meeting_id':Room.objects.get(passcode=passcode).room_name}, safe=False)
+        return JsonResponse({'meeting_id':Room.objects.get(passcode=passcode).room_id}, safe=False)
     else:
         return JsonResponse({'not_found':True}, safe=False)
 
@@ -74,8 +73,13 @@ def update_username(request):
     user = User.objects.get(id=request.user.id)
     user.first_name = first_name
     user.last_name = last_name
-    user.username = username
     user.save()
+
+    item = account_info.objects.get(user=user)
+    item.first_name = first_name
+    item.last_name = last_name
+    item.username = username
+    item.save()
     return JsonResponse({'first_name':first_name,'last_name':last_name,'username':username}, safe=False)
 
 def update_password(request):
@@ -121,10 +125,14 @@ def whiteboard_page(request, meeting_id):
 def whiteboardDetails(request):
     data = request.GET
     room_name = data['room_name']
-    room = Room.objects.get(room_name=room_name)
+    room = Room.objects.get(room_id=room_name)
     item = MeetingWhiteboard.objects.get(room=room)
+    response = None
 
-    response = {'room_token':item.room_token,'room_uuid':item.room_uuid}
+    if item.room_token != None and item.room_uuid != None:
+        response = {'room_token':item.room_token,'room_uuid':item.room_uuid}
+    else:
+        response = {}
 
     return JsonResponse(response, safe=False)
 
@@ -258,7 +266,7 @@ def schedule_meeting(request):
     return render(request, 'schedule_meeting.html')
 
 @login_required(login_url='login')
-def recorded_files(request, meeting_id):
+def recorded_files(request):
     files = RecordedFiles.objects.filter(user=request.user)
     context = {'files':files}
 
@@ -274,18 +282,32 @@ def uploaded_files(request, meeting_id):
     return render(request, 'uploaded_files.html', context)
 
 def meet_page(request, meeting_id):
+    x_forw_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    ip_address = None
+
+    if x_forw_for is not None:
+        ip_address = x_forw_for.split(',')[0]
+    else:
+        ip_address = request.META.get('REMOTE_ADDR')
+    print(ip_address)
+
+    if not request.user.is_authenticated:
+        if ip_address != '175.6.189.138':
+            return redirect('login')
+
     user_details = {}
 
     try:
         if request.user.is_authenticated:
             user_details['profile_picture'] = account_info.objects.get(user=request.user).profile_picture
+            request.user.username = account_info.objects.get(user=request.user).username
     except:
         pass
 
     if request.method == 'POST':
         if request.FILES:
             if request.user.is_authenticated:
-                room = Room.objects.get(room_name=meeting_id)
+                room = Room.objects.get(room_id=meeting_id)
                 room_member = Room_member.objects.get(id=int(request.POST['uid']))
                 item = Room_message(room=room,room_member=room_member,
                     file=request.FILES['image'],file_type=request.POST['fileType'],
@@ -293,9 +315,12 @@ def meet_page(request, meeting_id):
                 item.save()
                 return JsonResponse({'fileUrl':item.file.url}, safe=False)
         else:
-            video_file_name = request.POST['video_file_name']
+            try:
+                video_file_name = request.POST['video_file_name']
 
-            RecordedFiles(User=request.user, fileUrl=video_file_name).save()
+                RecordedFiles(User=request.user, fileUrl=video_file_name).save()
+            except:
+                pass
 
     customer_key = "a0a3bcfe4bf24cb48e5ace72855058cc"
     customer_secret = "35c8f03349184c40932e03d531c06de5"
@@ -303,48 +328,46 @@ def meet_page(request, meeting_id):
     base64_credentials = base64.b64encode(credentials.encode("utf8"))
     credential = base64_credentials.decode("utf8")
 
-    room_chats = Room_message.objects.filter(room=Room.objects.get(room_name=meeting_id))
+    room_chats = Room_message.objects.filter(room=Room.objects.get(room_id=meeting_id))
 
     for item in room_chats:
         item.profile_picture = account_info.objects.get(user=item.room_member.user).profile_picture
 
     context = {'profile_picture':user_details.get('profile_picture','/media/no_profile_Pic.jpeg'),
-                'host_profile_pic':account_info.objects.get(user_token=meeting_id).profile_picture,
                 'meeting_link':'https://'+str(get_current_site(request))+'/meet/'+meeting_id,
-                'host_username':account_info.objects.get(user_token=meeting_id).user.username,
                 'authorization': credential,'room_chats':room_chats}
     request.user.user_token = meeting_id
-    request.meeting_description = Room.objects.get(room_name=meeting_id).description
-    request.meeting_passcode = Room.objects.get(room_name=meeting_id).passcode
+    request.meeting_description = Room.objects.get(room_id=meeting_id).description
+    request.meeting_passcode = Room.objects.get(room_id=meeting_id).passcode
 
-    try:
-        request.user.username = account_info.objects.get(user=request.user).username
-    except:
-        pass
+    return render(request, "meeting.html",context)
 
-    return render(request, "meet.html",context)
-
-@background(schedule=10)
-def notify_user():
-    print('hello this is your scheduled message')
+def changeWhtieboardDetails(request):
+    if request.method == 'POST':
+        if request.is_ajax:
+            data = json.loads(request.body)
+            room = Room.objects.get(room_id=data['room_id'])
+            item = MeetingWhiteboard.objects.get(room=room)
+            item.room_token = data['room_token']
+            item.room_uuid = data['room_uuid']
+            item.save()
+            return render(request, 'meeting.html')
 
 @login_required(login_url='login')
 def home_page(request):
-    notify_user()
-    if request.method == "POST":
-        meeting_title = request.POST['meeting_title']
-        room = Room.objects.get(room_name=account_info.objects.get(user=request.user).user_token)
-        room.description = meeting_title.capitalize()
-        room.passcode = secrets.token_urlsafe(4)
-        room.start_date = timezone.now()
-        room.save()
-        return redirect('meet',account_info.objects.get(user=request.user).user_token)
-
     request.user.username = account_info.objects.get(user=request.user).username
 
     context = {'profile_picture':account_info.objects.get(user=request.user).profile_picture,
                 'user_token':account_info.objects.get(user=request.user).user_token,'current_time':timezone.now()}
-    return render(request, "home.html", context)
+    return render(request, "home.html", context) 
+
+def start_meeting(request):
+    if request.method == "POST":
+        room = Room.objects.get(room_name=account_info.objects.get(user=request.user).user_token)
+        room.room_id = secrets.token_urlsafe()
+        room.passcode = secrets.token_urlsafe(4).lower()
+        room.save()
+        return JsonResponse({'meeting_id':room.room_id}, safe=False)
 
 @login_required(login_url='login')
 def get_started_page(request):
@@ -355,26 +378,16 @@ def logout_user(request):
     return redirect('login')
 
 def test_page(request):
-    customer_key = "a0a3bcfe4bf24cb48e5ace72855058cc"
-    customer_secret = "35c8f03349184c40932e03d531c06de5"
-    credentials = customer_key + ":" + customer_secret
-    base64_credentials = base64.b64encode(credentials.encode("utf8"))
-    credential = base64_credentials.decode("utf8")
+    x_forw_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    ip_address = None
 
-    appId = '0eb3e08e01364927854ee79b9e513819'
-    appCertificate = 'f2fdb8604d8b47a9bc71dcd5606f1d7e'
-    channelName = 'uiuiubui'
-    uid = 57687
-    expirationTimeInSeconds = 3600 * 24
-    currentTimeStamp = time.time()
-    privilegeExpiredTs = currentTimeStamp + expirationTimeInSeconds
-    role = 1
+    if x_forw_for is not None:
+        ip_address = x_forw_for.split(',')[0]
+    else:
+        ip_address = request.META.get('REMOTE_ADDR')
+    print(ip_address)
 
-    token = RtcTokenBuilder.buildTokenWithUid(appId, appCertificate, channelName, uid, role, privilegeExpiredTs)
-
-    context = {'authorization':credential,'token':token}
-
-    return render(request, "test.html",context)
+    return render(request, "test.html")
 
 def meeting_ended(request):
     return render(request, "meeting_ended.html")

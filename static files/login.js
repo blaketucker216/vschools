@@ -3,7 +3,7 @@ form.addEventListener('submit',() => {
     var button = form.lastElementChild;
     button.innerHTML = "LOGGING IN....";
     button.setAttribute('disabled','');
-    button.style.color = 'rgba(245, 245, 245, 0.44)';
+    button.style.color = 'rgba(255, 255, 255, 0.889)';
 })
 
 let close_item = () => {
