@@ -68,7 +68,7 @@ body {
 
 #controls button {
     padding: 20px;
-    margin: 5px;
+    margin: 8px;
     font-size: 14px;
     width: 53px;
     height: 44px;
@@ -477,7 +477,13 @@ body {
     color: rgba(0, 0, 0, 0.685);
     background: none;
     border: none;
-    font-size: 14px;
+    font-size: 13px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #header button {

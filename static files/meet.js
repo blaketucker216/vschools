@@ -317,8 +317,6 @@ let handleNewUser = async (user, mediaType) => {
 
 let handleUserLeft = async (user) => {
     document.getElementById(user.uid.toString()).remove();
-    document.getElementById(`participant_${user.uid.toString()}`).remove();
-
     all_users -= 1
     document.getElementById('meeting_tools').firstElementChild.innerHTML = `classroom (${all_users})`;
 }
@@ -1053,7 +1051,12 @@ let getCredentials = () => {
     })
 }
 
-let clicker = () => {
+let clicker = (self) => {
+    Array.from(document.getElementById('tools').children).forEach((item) => {
+        item.style.backgroundColor = 'unset';
+    })
+    self.style.backgroundColor = "rgba(0, 0, 0, 0.17)";
+
     room.setMemberState(
         {currentApplianceName: 'clicker',
          shapeType: 'pentagram',
@@ -1062,8 +1065,13 @@ let clicker = () => {
          textSize: 40,});
 }
 
-let eraser = () => {
-  room.setMemberState(
+let eraser = (self) => {
+    Array.from(document.getElementById('tools').children).forEach((item) => {
+        item.style.backgroundColor = 'unset';
+    })
+    self.style.backgroundColor = "rgba(0, 0, 0, 0.17)";
+
+    room.setMemberState(
       {currentApplianceName: 'eraser',
        shapeType: 'pentagram',
        strokeColor: [255,182,200],
@@ -1071,8 +1079,13 @@ let eraser = () => {
        textSize: 40,});
 }
 
-let text = () => {
-  room.setMemberState(
+let text = (self) => {
+    Array.from(document.getElementById('tools').children).forEach((item) => {
+        item.style.backgroundColor = 'unset';
+    })
+    self.style.backgroundColor = "rgba(0, 0, 0, 0.17)";
+
+    room.setMemberState(
     {currentApplianceName: 'text',
      shapeType: 'pentagram',
      strokeColor: [255,182,200],
@@ -1080,8 +1093,13 @@ let text = () => {
      textSize: 40,});
 }
 
-var pen = () => {
-  room.setMemberState(
+var pen = (self) => {
+    Array.from(document.getElementById('tools').children).forEach((item) => {
+        item.style.backgroundColor = 'unset';
+    })
+    self.style.backgroundColor = "rgba(0, 0, 0, 0.17)";
+
+    room.setMemberState(
       {currentApplianceName: 'pencil',
        shapeType: 'pentagram',
        strokeColor: [0,0,0],
@@ -1089,21 +1107,18 @@ var pen = () => {
        textSize: 40,});
 }
 
-let hand = () => {
-  room.setMemberState(
+let hand = (self) => {
+    Array.from(document.getElementById('tools').children).forEach((item) => {
+        item.style.backgroundColor = 'unset';
+    })
+    self.style.backgroundColor = "rgba(0, 0, 0, 0.17)";
+
+    room.setMemberState(
       {currentApplianceName: 'hand',
        shapeType: 'pentagram',
        strokeColor: [255,182,200],
        strokeWidth: 12,
        textSize: 40,});
-}
-
-let redo = () => {
-  room.redo();
-}
-
-let undo = () => {
-    room.undo()
 }
 
 let clearBoard = () => {

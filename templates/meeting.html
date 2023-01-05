@@ -30,7 +30,7 @@
                 <div id = "meeting_tools">
                     <button style = "border-bottom: 2px solid rgba(0,0,200,0.6);" onclick = "open_classroom(this)">classroom</button>
                     <button onclick = "open_whiteboard(this)">whiteboard</button>
-                    <button onclick = "open_meet_info(this)">meet info</button>
+                    <button onclick = "open_meet_info(this)">Invite</button>
                 </div>
                 <div id = "participants">
                     
@@ -42,18 +42,18 @@
                     <div id="whiteboard" data-meeting_token = "{{ request.meeting_token }}">
                     </div>
                     <div id = "tools">
-                        <button onclick = "cliker()"><i class = "fas fa-mouse-pointer"></i></button>
-                        <button onclick = "eraser()"><i class = "fas fa-eraser"></i></button>
-                        <button onclick = "pen()"><i class = "fas fa-pen"></i></button>
-                        <button onclick = "hand()"><i class = "far fa-hand-paper"></i></button>
-                        <button style = "font-weight: bold; font-size: 22px;" onclick = "text()">T</button>
+                        <button onclick = "clicker(this)"><i class = "fas fa-mouse-pointer"></i></button>
+                        <button onclick = "eraser(this)"><i class = "fas fa-eraser"></i></button>
+                        <button onclick = "pen(this)" style = "background-color: rgba(0, 0, 0, 0.17);"><i class = "fas fa-pen"></i></button>
+                        <button onclick = "hand(this)"><i class = "far fa-hand-paper"></i></button>
+                        <button style = "font-weight: bold; font-size: 18px;" onclick = "text(this)">T</button>
                         <button onclick = "upload_image()"><i class = "fas fa-image"></i></button>
                         <button onclick = "clearBoard()"><i class = "fas fa-broom"></i></button>
                     </div>
                 </div>
                 <div id = "meeting_info">
                     <div class = "first_child">
-                        <h3>Meeting tools</h3>
+                        <h3>Invite others</h3>
                         <p>Copy and share the meeting invite link and passcode below to invite other users into the meeting.</p>
                         <div class = "invite_link">
                             <input type = "text" value = "{{ meeting_link }}" placeholder = "Meeting invite link"/>
@@ -63,8 +63,6 @@
                             <input type = "text" value = "{{ request.meeting_passcode }}" placeholder = "meeting passcode"/>
                             <button onclick = "copy_link(this)"><i class = "far fa-copy"></i></button>
                         </div>
-                        <button class = "start_recording" style = "background-color: rgba(0, 0, 255, 0.123); color: blue;" onclick = "open_chats()"><i class = "far fa-comments"></i> Live chat</button>
-                        <button class = "start_recording" style = "background-color: rgba(255, 0, 0, 0.123); color: red;" onclick = "get_resource_id(this)"><i class = "fas fa-record-vinyl"></i> Record meeting</button>
                     </div>
                 </div>
             </div>
@@ -73,6 +71,7 @@
                 <button data-name = "unmute" onclick = "handle_audio(this)"><i class = "fas fa-microphone-slash"></i></button>
                 <button data-name = "raise" onclick = "raise_hand(this)"><i class = "far fa-hand-paper"></i></button>
                 <button data-name = "share" onclick = "screen_sharing(this)"><i class = "fas fa-laptop"></i></button>
+                <button data-name = "chats" onclick = "open_chats()"><i class = "far fa-comments"></i></button>
                 <button style = "color: white; background-color: red; border: none;" onclick = "leaveAndRemoveLocalStream()" data-name = "leave"><i class = "fas fa-stop"></i></button>
             </div>
         </div>
